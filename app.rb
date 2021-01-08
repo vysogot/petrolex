@@ -1,9 +1,10 @@
 class Station
-  attr_accessor :fuel_reserve, :is_occupied
+  attr_accessor :fuel_reserve, :is_occupied, :simulation_speed
 
-  def initialize(fuel_reserve: 30_000, is_occupied: false)
+  def initialize(fuel_reserve: 30_000, is_occupied: false, simulation_speed: 1)
     @fuel_reserve = fuel_reserve
     @is_occupied = is_occupied
+    @simulation_speed = simulation_speed
   end
 
   def request_fueling(car, litres)
@@ -32,7 +33,7 @@ class Station
     log_start(car.id, litres, car.seconds_waited)
 
     seconds_to_fuel = (litres * rand(0.5..0.7)).round(3)
-    TimeService.wait(seconds_to_fuel/100)
+    TimeService.wait(seconds_to_fuel/simulation_speed)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 
@@ -51,19 +52,31 @@ class Station
 end
 
 class Car
-  attr_accessor :tank_volume, :tank_level, :id, :seconds_waited
+  attr_accessor :tank_volume, :tank_level, :id,
+    :seconds_waited, :retry_fueling, :keep_trying,
+    :simulation_speed
 
-  def initialize(tank_volume: 70, tank_level: 10)
+  def initialize(tank_volume: 70,
+                 tank_level: 10,
+                 retry_fueling: true,
+                 simulation_speed: 1)
     @tank_volume = tank_volume
     @tank_level = tank_level
     @id = rand(1..10_000)
     @seconds_waited = 0
+    @keep_trying = true
+    @retry_fueling = retry_fueling
+    @simulation_speed = simulation_speed > 100 ? 100 : simulation_speed
   end
 
   def try_to_fuel(station)
-    if station.request_fueling(self, litres_to_fuel) == false
+    loop do
+      if station.request_fueling(self, litres_to_fuel)
+        @keep_trying = false
+      end
+
+      break unless keep_trying
       wait
-      try_to_fuel(station)
     end
   end
 
@@ -74,8 +87,9 @@ class Car
   end
 
   def wait
+    @keep_trying = retry_fueling
     seconds_to_wait = 1
-    TimeService.wait(seconds_to_wait)
+    TimeService.wait(seconds_to_wait/simulation_speed.to_f)
     @seconds_waited += seconds_to_wait
   end
 end

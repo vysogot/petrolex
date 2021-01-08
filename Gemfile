@@ -1,4 +1,7 @@
 source 'https://rubygems.org'
 
-gem 'minitest'
-gem 'simplecov', require: false
+group :test do
+  gem 'minitest'
+  gem 'simplecov', require: false
+  gem 'm'
+end

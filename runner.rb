@@ -1,26 +1,37 @@
 require_relative 'app'
 
-station = Station.new(fuel_reserve: 30_000)
+number_of_cars = 10
+fuel_reserve = 30_000
+tank_range = (35..70)
+level_range = (1...35)
+simulation_speed = 1000
+
+station = Station.new(fuel_reserve: fuel_reserve,
+                      simulation_speed: simulation_speed)
 threads = []
 cars = []
 
-10.times do
-  cars << Car.new(tank_volume: rand(35..70),
-                  tank_level: rand(1...35))
+number_of_cars.times do
+  cars << Car.new(tank_volume: rand(tank_range),
+                  tank_level: rand(level_range),
+                  simulation_speed: simulation_speed)
 end
 
 cars.each do |car|
-  threads << Thread.new { car.try_to_fuel(station) }
+  threads << Thread.new { sleep(1); car.try_to_fuel(station) }
 end
 
 puts "Petrolex Station Simulator has started."
-puts "Fuel reserve: 30'000"
-puts "Cars in queue: 10"
+puts "Simulation speed: x#{simulation_speed}"
+puts "Fuel reserve: #{station.fuel_reserve}"
+puts "Cars in queue: #{number_of_cars}"
 puts
 
 threads.each(&:join)
 total_cars_waiting_seconds = cars.sum(&:seconds_waited)
 
-puts "Result: car waits #{total_cars_waiting_seconds/10.0} seconds on avarage."
-puts "#{station.fuel_reserve} litres left in station reserve."
+puts "Results:"
+puts "Avg car wait: #{total_cars_waiting_seconds/number_of_cars.to_f} seconds"
+puts "Litres left: #{station.fuel_reserve} litres"
+puts
 puts "Petrolex Station Simulator has ended."
