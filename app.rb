@@ -66,7 +66,7 @@ class Car
     @seconds_waited = 0
     @keep_trying = true
     @retry_fueling = retry_fueling
-    @simulation_speed = simulation_speed > 100 ? 100 : simulation_speed
+    @simulation_speed = simulation_speed
   end
 
   def try_to_fuel(station)

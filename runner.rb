@@ -4,7 +4,7 @@ number_of_cars = 10
 fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
-simulation_speed = 1000
+simulation_speed = 10
 
 station = Station.new(fuel_reserve: fuel_reserve,
                       simulation_speed: simulation_speed)
