@@ -1,10 +1,11 @@
 class Station
-  attr_accessor :fuel_reserve, :is_occupied
+  attr_accessor :fuel_reserve, :is_occupied, :is_open
 
-  def initialize(fuel_reserve: 30_000, is_occupied: false, fueling_speed: 0.5)
+  def initialize(fuel_reserve: 30_000, is_occupied: false, fueling_speed: 0.5, is_open: true)
     @fuel_reserve = fuel_reserve
     @is_occupied = is_occupied
     @fueling_speed = fueling_speed
+    @is_open = is_open
   end
 
   def request_fueling(car, litres)
@@ -14,13 +15,14 @@ class Station
   end
 
   def open
+    @is_open = true
     log_station_opens
   end
 
   private
 
   def can_fuel?(litres)
-    enough_fuel?(litres) && !is_occupied
+    is_open && !is_occupied && enough_fuel?(litres)
   end
 
   def enough_fuel?(litres)

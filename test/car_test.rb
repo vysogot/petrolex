@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 
-class TestCar < Minitest::Test
+class CarTest < Minitest::Test
   include ::TestHelper
 
   def test_car_fuels

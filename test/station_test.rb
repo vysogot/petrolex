@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 
-class TestStation < Minitest::Test
+class StationTest < Minitest::Test
   include ::TestHelper
 
   def test_handles_fueling_request
@@ -10,5 +10,13 @@ class TestStation < Minitest::Test
     stub_waiting { station.request_fueling(car, 30) }
 
     assert_equal 50, car.tank_level
+  end
+
+  def test_opens
+    station = Station.new(is_occupied: true)
+
+    station.open
+
+    assert station.is_open
   end
 end
