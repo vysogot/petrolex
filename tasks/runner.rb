@@ -1,10 +1,11 @@
-require_relative 'app'
+require_relative '../app/petrolex'
 
 number_of_cars = 10
 fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
-simulation_speed = 10
+car_delay_range = (1..5000)
+simulation_speed = 1000
 
 station = Station.new(fuel_reserve: fuel_reserve,
                       simulation_speed: simulation_speed)
@@ -18,7 +19,10 @@ number_of_cars.times do
 end
 
 cars.each do |car|
-  threads << Thread.new { sleep(1); car.try_to_fuel(station) }
+  threads << Thread.new do
+    Timer.wait(rand(car_delay_range)/simulation_speed)
+    car.try_to_fuel(station)
+  end
 end
 
 puts "Petrolex Station Simulator has started."
@@ -27,6 +31,7 @@ puts "Fuel reserve: #{station.fuel_reserve}"
 puts "Cars in queue: #{number_of_cars}"
 puts
 
+sleep(1)
 threads.each(&:join)
 total_cars_waiting_seconds = cars.sum(&:seconds_waited)
 
