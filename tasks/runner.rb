@@ -4,8 +4,8 @@ number_of_cars = 10
 fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
-car_delay_range = (1..100)
-simulation_speed = 100
+car_delay_range = (10..100)
+simulation_speed = 50
 
 Timer.setup(simulation_speed: simulation_speed)
 
@@ -37,9 +37,9 @@ sleep(1)
 Timer.instance.start
 car_threads.each(&:join)
 
-total_cars_waiting_seconds = cars.sum(&:seconds_waited)
+total_cars_waiting_time = cars.sum(&:time_waited)
 puts "Results:"
-puts "Avg car wait: #{total_cars_waiting_seconds/number_of_cars.to_f} seconds"
+puts "Avg car wait: #{total_cars_waiting_time/number_of_cars.to_f} seconds"
 puts "Litres left: #{station.fuel_reserve} litres"
 puts
 puts "Petrolex Station Simulator has ended."
