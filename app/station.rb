@@ -12,6 +12,10 @@ class Station
     true
   end
 
+  def open
+    log_station_opens
+  end
+
   private
 
   def can_fuel?(litres)
@@ -29,24 +33,28 @@ class Station
   end
 
   def fuel(car, litres)
-    log_start(car.id, litres, car.seconds_waited)
+    log_fueling_starts(car.id, litres, car.seconds_waited)
 
     seconds_to_fuel = (litres * rand(0.5..0.7)).round(3)
     Timer.instance.wait(seconds_to_fuel)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 
-    log_end(car.id, litres, seconds_to_fuel)
+    log_fueling_ends(car.id, litres, seconds_to_fuel)
   end
 
-  def log_start(car_id, litres, seconds_to_fuel)
+  def log_fueling_starts(car_id, litres, seconds_to_fuel)
     Logger.info("Car##{car_id} waited #{seconds_to_fuel} seconds to fuel")
     Logger.info("Car##{car_id} starts fueling #{litres} litres")
   end
 
-  def log_end(car_id, litres, seconds)
+  def log_fueling_ends(car_id, litres, seconds)
     Logger.info("Tanked #{litres} liters of Car#" +
-                "#{car_id} in #{seconds} seconds\n\n")
+                "#{car_id} in #{seconds} seconds")
+  end
+
+  def log_station_opens
+    Logger.info("Station opens. Awaiting cars.")
   end
 end
 

@@ -1,5 +1,6 @@
 class Logger
   def self.info(message)
-    puts("#{Time.now.strftime("%H:%m:%S.%L")}: #{message}")
+    current_tick = Timer.current_tick.to_s.rjust(5, "0")
+    puts("#{current_tick}: #{message}")
   end
 end

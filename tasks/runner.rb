@@ -10,8 +10,8 @@ simulation_speed = 100
 Timer.setup(simulation_speed: simulation_speed)
 
 station = Station.new(fuel_reserve: fuel_reserve)
-threads = []
 cars = []
+car_threads = []
 
 number_of_cars.times do
   cars << Car.new(tank_volume: rand(tank_range),
@@ -19,7 +19,7 @@ number_of_cars.times do
 end
 
 cars.each do |car|
-  threads << Thread.new do
+  car_threads << Thread.new do
     Timer.instance.wait(rand(car_delay_range))
     car.try_to_fuel(station)
   end
@@ -28,13 +28,16 @@ end
 puts "Petrolex Station Simulator has started."
 puts "Simulation speed: x#{simulation_speed}"
 puts "Fuel reserve: #{station.fuel_reserve}"
-puts "Cars in queue: #{number_of_cars}"
+puts "Cars to arrive: #{number_of_cars}"
 puts
 
+station.open
 sleep(1)
-threads.each(&:join)
-total_cars_waiting_seconds = cars.sum(&:seconds_waited)
 
+Timer.instance.start
+car_threads.each(&:join)
+
+total_cars_waiting_seconds = cars.sum(&:seconds_waited)
 puts "Results:"
 puts "Avg car wait: #{total_cars_waiting_seconds/number_of_cars.to_f} seconds"
 puts "Litres left: #{station.fuel_reserve} litres"
