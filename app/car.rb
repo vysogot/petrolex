@@ -1,19 +1,16 @@
 class Car
   attr_accessor :tank_volume, :tank_level, :id,
-    :seconds_waited, :retry_fueling, :keep_trying,
-    :simulation_speed
+    :seconds_waited, :retry_fueling, :keep_trying
 
   def initialize(tank_volume: 70,
                  tank_level: 10,
-                 retry_fueling: true,
-                 simulation_speed: 1)
+                 retry_fueling: true)
     @tank_volume = tank_volume
     @tank_level = tank_level
     @id = rand(1..10_000)
     @seconds_waited = 0
     @keep_trying = true
     @retry_fueling = retry_fueling
-    @simulation_speed = simulation_speed
   end
 
   def try_to_fuel(station)
@@ -38,7 +35,7 @@ class Car
   def wait
     @keep_trying = retry_fueling
     seconds_to_wait = 1
-    Timer.wait(seconds_to_wait/simulation_speed.to_f)
+    Timer.instance.wait(seconds_to_wait)
     @seconds_waited += seconds_to_wait
   end
 end

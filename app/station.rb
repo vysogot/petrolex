@@ -1,10 +1,9 @@
 class Station
-  attr_accessor :fuel_reserve, :is_occupied, :simulation_speed
+  attr_accessor :fuel_reserve, :is_occupied
 
-  def initialize(fuel_reserve: 30_000, is_occupied: false, simulation_speed: 1)
+  def initialize(fuel_reserve: 30_000, is_occupied: false)
     @fuel_reserve = fuel_reserve
     @is_occupied = is_occupied
-    @simulation_speed = simulation_speed
   end
 
   def request_fueling(car, litres)
@@ -33,15 +32,15 @@ class Station
     log_start(car.id, litres, car.seconds_waited)
 
     seconds_to_fuel = (litres * rand(0.5..0.7)).round(3)
-    Timer.wait(seconds_to_fuel/simulation_speed)
+    Timer.instance.wait(seconds_to_fuel)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 
     log_end(car.id, litres, seconds_to_fuel)
   end
 
-  def log_start(car_id, litres, seconds_waited)
-    Logger.info("Car##{car_id} waited #{seconds_waited} seconds to fuel")
+  def log_start(car_id, litres, seconds_to_fuel)
+    Logger.info("Car##{car_id} waited #{seconds_to_fuel} seconds to fuel")
     Logger.info("Car##{car_id} starts fueling #{litres} litres")
   end
 

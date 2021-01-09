@@ -4,23 +4,23 @@ number_of_cars = 10
 fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
-car_delay_range = (1..5000)
-simulation_speed = 1000
+car_delay_range = (1..100)
+simulation_speed = 100
 
-station = Station.new(fuel_reserve: fuel_reserve,
-                      simulation_speed: simulation_speed)
+Timer.setup(simulation_speed: simulation_speed)
+
+station = Station.new(fuel_reserve: fuel_reserve)
 threads = []
 cars = []
 
 number_of_cars.times do
   cars << Car.new(tank_volume: rand(tank_range),
-                  tank_level: rand(level_range),
-                  simulation_speed: simulation_speed)
+                  tank_level: rand(level_range))
 end
 
 cars.each do |car|
   threads << Thread.new do
-    Timer.wait(rand(car_delay_range)/simulation_speed)
+    Timer.instance.wait(rand(car_delay_range))
     car.try_to_fuel(station)
   end
 end
