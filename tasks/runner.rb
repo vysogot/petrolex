@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../app/petrolex'
 
 number_of_cars = 10
@@ -25,7 +27,7 @@ cars.each do |car|
   end
 end
 
-puts "Petrolex Station Simulator has started."
+puts 'Petrolex Station Simulator has started.'
 puts "Simulation speed: x#{simulation_speed}"
 puts "Fuel reserve: #{station.fuel_reserve}"
 puts "Cars to arrive: #{number_of_cars}"
@@ -38,10 +40,10 @@ Timer.instance.start
 car_threads.each(&:join)
 
 total_cars_waiting_time = cars.sum(&:time_waited)
-avg_time = total_cars_waiting_time/number_of_cars.to_f
+avg_time = total_cars_waiting_time / number_of_cars.to_f
 
-puts "Results:"
+puts 'Results:'
 puts "Avg car wait: #{avg_time} seconds"
 puts "Litres left: #{station.fuel_reserve} litres"
 puts
-puts "Petrolex Station Simulator has ended."
+puts 'Petrolex Station Simulator has ended.'

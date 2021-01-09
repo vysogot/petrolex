@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'simplecov'
 SimpleCov.start
 
@@ -17,10 +19,12 @@ module TestHelper
 
   def stub_waiting(&block)
     mock = Minitest::Mock.new
-    def mock.wait; nil; end
+    def mock.wait
+      nil
+    end
 
-    Timer.instance.stub :wait, mock do
-      yield
+    Timer.instance.stub(:wait, mock) do
+      block.call
     end
   end
 end

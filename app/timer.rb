@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Syncs time
 class Timer
   attr_accessor :simulation_speed, :tick
 
@@ -7,7 +10,7 @@ class Timer
   end
 
   def self.setup(simulation_speed: 1)
-    @@instance ||= self.new(simulation_speed)
+    @@instance ||= new(simulation_speed)
   end
 
   def self.instance
@@ -17,7 +20,7 @@ class Timer
   def start
     tick_step = 1
 
-    Thread.new do |t|
+    Thread.new do |_t|
       loop do
         @@instance.wait(tick_step)
         @tick += tick_step
@@ -26,7 +29,7 @@ class Timer
   end
 
   def wait(seconds)
-    sleep(seconds/@@instance.simulation_speed.to_f)
+    sleep(seconds / @@instance.simulation_speed.to_f)
   end
 
   def current_tick

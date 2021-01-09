@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Sells fuel
 class Station
   attr_accessor :fuel_reserve, :is_occupied, :is_open
 
@@ -10,6 +13,7 @@ class Station
 
   def request_fueling(car, litres)
     return false unless can_fuel?(litres)
+
     handle_fueling(car, litres)
     true
   end
@@ -52,12 +56,11 @@ class Station
   end
 
   def log_fueling_ends(car_id, litres, fueling_time)
-    Logger.info("Tanked #{litres} liters of Car#" +
+    Logger.info("Tanked #{litres} liters of Car#" \
                 "#{car_id} in #{fueling_time} seconds")
   end
 
   def log_station_opens
-    Logger.info("Station opens. Awaiting cars.")
+    Logger.info('Station opens. Awaiting cars.')
   end
 end
-

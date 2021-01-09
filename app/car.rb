@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
+# Fuels at the Station
 class Car
   attr_accessor :tank_volume, :tank_level, :id,
-    :time_waited, :retry_fueling, :keep_trying
+                :time_waited, :retry_fueling, :keep_trying
 
   def initialize(tank_volume: 70,
                  tank_level: 10,
@@ -18,11 +21,10 @@ class Car
     Logger.info("Car##{id} has arrived")
 
     loop do
-      if station.request_fueling(self, litres_to_fuel)
-        @keep_trying = false
-      end
+      @keep_trying = false if station.request_fueling(self, litres_to_fuel)
 
       break unless keep_trying
+
       wait
     end
   end
