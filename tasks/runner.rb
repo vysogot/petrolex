@@ -5,7 +5,7 @@ fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
 car_delay_range = (10..100)
-simulation_speed = 50
+simulation_speed = 10
 
 Timer.setup(simulation_speed: simulation_speed)
 

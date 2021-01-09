@@ -6,6 +6,6 @@ class TimerTest < Minitest::Test
 
     sleep(1/10.0)
 
-    assert Timer.current_tick > 0
+    assert Timer.instance.current_tick > 0
   end
 end
