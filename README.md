@@ -17,3 +17,9 @@ The purpose of simulation is to find an optimal station setup.
 The measurement is an avarage waiting time of a car.
 
 Have fun!
+
+```
+bundle install
+bundle exec m test/
+bundle exec ruby task/runner.rb
+```
