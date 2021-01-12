@@ -6,25 +6,14 @@ SimpleCov.start
 require_relative '../app/petrolex'
 require 'minitest/autorun'
 
-Timer.setup(simulation_speed: 100)
+Timer.setup(simulation_speed: 1000)
 
-module TestHelper
+ENV['app_env'] = 'test'
+
+module QuietLogger
   def run
     Logger.stub :info, nil do
       super
-    end
-  end
-
-  private
-
-  def stub_waiting(&block)
-    mock = Minitest::Mock.new
-    def mock.wait
-      nil
-    end
-
-    Timer.instance.stub(:wait, mock) do
-      block.call
     end
   end
 end

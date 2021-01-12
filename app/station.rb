@@ -2,13 +2,23 @@
 
 # Sells fuel
 class Station
-  attr_accessor :fuel_reserve, :is_occupied, :is_open
+  attr_accessor :fuel_reserve, :is_occupied, :is_open, :queue,
+                :queue_consumer, :waiting_times
 
-  def initialize(fuel_reserve: 30_000, is_occupied: false, fueling_speed: 0.5, is_open: true)
+  def initialize(fuel_reserve: 30_000,
+                 is_occupied: false,
+                 fueling_speed: 0.5,
+                 is_open: false)
     @fuel_reserve = fuel_reserve
     @is_occupied = is_occupied
     @fueling_speed = fueling_speed
     @is_open = is_open
+    @waiting_times = []
+
+    @queue = []
+    @queue_consumer = ::QueueConsumer.new(
+      station: self, closing_tick: 200, refresh_step: 1
+    ).consumer
   end
 
   def request_fueling(car, litres)
@@ -21,6 +31,23 @@ class Station
   def open
     @is_open = true
     log_station_opens
+    @queue_consumer.join
+  end
+
+  def close
+    @is_open = false
+    log_station_closes
+  end
+
+  def enqueue(car)
+    @queue << car
+    @queue.size
+  end
+
+  def consume_queue
+    return unless (car = @queue.shift)
+
+    car.try_to_fuel(self)
   end
 
   private
@@ -40,18 +67,20 @@ class Station
   end
 
   def fuel(car, litres)
-    log_fueling_starts(car.id, litres, car.time_waited)
+    waiting_time = Timer.instance.current_tick - car.entry_tick
+    log_fueling_starts(car.id, litres, waiting_time)
 
-    fueling_time = litres * @fueling_speed
+    fueling_time = litres / @fueling_speed
     Timer.instance.wait(fueling_time)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 
     log_fueling_ends(car.id, litres, fueling_time)
+    @waiting_times << waiting_time
   end
 
-  def log_fueling_starts(car_id, litres, fueling_time)
-    Logger.info("Car##{car_id} waited #{fueling_time} seconds to fuel")
+  def log_fueling_starts(car_id, litres, waiting_time)
+    Logger.info("Car##{car_id} waited #{waiting_time} seconds to fuel")
     Logger.info("Car##{car_id} starts fueling #{litres} litres")
   end
 
@@ -62,5 +91,9 @@ class Station
 
   def log_station_opens
     Logger.info('Station opens. Awaiting cars.')
+  end
+
+  def log_station_closes
+    Logger.info('Station closes. Goodbye!')
   end
 end

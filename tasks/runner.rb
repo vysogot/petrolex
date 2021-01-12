@@ -11,7 +11,8 @@ simulation_speed = 10
 
 Timer.setup(simulation_speed: simulation_speed)
 
-station = Station.new(fuel_reserve: fuel_reserve)
+# TODO: problem with starting with a closed station
+station = Station.new(fuel_reserve: fuel_reserve, is_open: true)
 cars = []
 car_threads = []
 
@@ -23,7 +24,7 @@ end
 cars.each do |car|
   car_threads << Thread.new do
     Timer.instance.wait(rand(car_delay_range))
-    car.try_to_fuel(station)
+    car.queue_up(station)
   end
 end
 
@@ -33,17 +34,22 @@ puts "Fuel reserve: #{station.fuel_reserve}"
 puts "Cars to arrive: #{number_of_cars}"
 puts
 
+sleep(1)
+Timer.instance.start
+
 station.open
 sleep(1)
-
-Timer.instance.start
 car_threads.each(&:join)
 
-total_cars_waiting_time = cars.sum(&:time_waited)
-avg_time = total_cars_waiting_time / number_of_cars.to_f
+total_cars_waiting_time = station.waiting_times.sum
+number_of_cars_fueled = number_of_cars - station.queue.size
+avg_time = total_cars_waiting_time / number_of_cars_fueled.to_f
 
+puts
 puts 'Results:'
-puts "Avg car wait: #{avg_time} seconds"
+puts "Cars served: #{station.waiting_times.size}"
+puts "Cars left: #{station.queue.size}"
+puts "Avg car wait: #{avg_time.round(3)} seconds"
 puts "Litres left: #{station.fuel_reserve} litres"
 puts
 puts 'Petrolex Station Simulator has ended.'
