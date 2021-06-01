@@ -21,5 +21,5 @@ Have fun!
 ```
 bundle install
 bundle exec m test/
-bundle exec ruby task/runner.rb
+bundle exec ruby tasks/runner.rb
 ```
