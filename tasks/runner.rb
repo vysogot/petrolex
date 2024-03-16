@@ -22,9 +22,22 @@ end
 cars, car_threads = [], []
 station = Station.new(
   fuel_reserve: FUEL_RESERVE,
-  fueling_speed: FUELING_SPEED,
-  closing_tick: CLOSING_TICK
+  fueling_speed: FUELING_SPEED
 )
+
+station_thread = Thread.new do
+  station.open
+  Timer.instance.pause_until(CLOSING_TICK)
+  station.close
+end
+
+queue_consumer_thread = Thread.new do
+  loop do
+    station.consume_queue
+    Timer.instance.wait
+    break if station.closed?
+  end
+end
 
 NUMBER_OF_CARS.times do
   cars << Car.new(
@@ -47,7 +60,8 @@ puts "Cars to arrive: #{NUMBER_OF_CARS}\n\n"
 
 Timer.instance.start
 
-station.open
+station_thread.join
+queue_consumer_thread.join
 car_threads.each(&:join)
 
 total_cars_waiting_time = station.waiting_times.sum
