@@ -8,7 +8,7 @@ tank_range = (35..70)
 level_range = (1...35)
 car_delay_range = (10..100)
 simulation_speed = 1000
-closing_tick = 2000
+closing_tick = 300
 
 Timer.configure do |timer|
   timer.simulation_speed = simulation_speed
@@ -37,11 +37,9 @@ puts "Fuel reserve: #{station.fuel_reserve}"
 puts "Cars to arrive: #{number_of_cars}"
 puts
 
-sleep(1)
 Timer.instance.start
 
 station.open
-sleep(1)
 car_threads.each(&:join)
 
 total_cars_waiting_time = station.waiting_times.sum

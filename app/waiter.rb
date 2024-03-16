@@ -5,7 +5,7 @@ class Waiter
   def self.call(tick)
     loop do
       break if Timer.instance.current_tick >= tick
-      sleep(0.001)
+      sleep(Timer.instance.tick_duration)
     end
   end
 end

@@ -34,6 +34,10 @@ class Timer
     timer_thread.terminate
   end
 
+  def tick_duration
+    1.0 / simulation_speed
+  end
+
   private
 
   attr_accessor :timer_thread
@@ -45,7 +49,7 @@ class Timer
   end
 
   def wait
-    sleep(1.0 / simulation_speed)
+    sleep(tick_duration)
   end
 
   def tick
