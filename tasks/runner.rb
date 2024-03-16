@@ -24,6 +24,7 @@ station = Station.new(
   fuel_reserve: FUEL_RESERVE,
   fueling_speed: FUELING_SPEED
 )
+queue = Queue.new(station:)
 
 station_thread = Thread.new do
   station.open
@@ -33,7 +34,7 @@ end
 
 queue_consumer_thread = Thread.new do
   loop do
-    station.consume_queue
+    queue.consume
     Timer.instance.wait
     break if station.closed?
   end
@@ -49,7 +50,7 @@ end
 cars.each do |car|
   car_threads << Thread.new do
     Timer.instance.pause_until(rand(CAR_DELAY_RANGE))
-    car.queue_up(station)
+    queue.push(car)
   end
 end
 

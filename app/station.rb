@@ -12,10 +12,10 @@ class Station
     @queue = []
   end
 
-  def request_fueling(car, litres)
-    return false unless can_fuel?(litres)
+  def request_fueling(car)
+    return false unless can_fuel?(car.litres_to_fuel)
 
-    handle_fueling(car, litres)
+    handle_fueling(car)
     true
   end
 
@@ -34,17 +34,6 @@ class Station
     !is_open
   end
 
-  def enqueue(car)
-    queue << car
-    queue.size
-  end
-
-  def consume_queue
-    return unless (car = queue.shift)
-
-    car.try_to_fuel(self)
-  end
-
   private
 
   def can_fuel?(litres)
@@ -59,22 +48,22 @@ class Station
     self.fuel_reserve -= litres
   end
 
-  def handle_fueling(car, litres)
+  def handle_fueling(car)
     self.is_occupied = true
-    fuel(car, litres)
+    fuel(car)
     self.is_occupied = false
   end
 
-  def fuel(car, litres)
+  def fuel(car)
     waiting_time = Timer.instance.current_tick - car.entry_tick
-    log_fueling_starts(car.id, litres, waiting_time)
+    log_fueling_starts(car.id, car.litres_to_fuel, waiting_time)
 
-    fueling_time = litres / fueling_speed
+    fueling_time = car.litres_to_fuel / fueling_speed
     Timer.instance.pause_until(car.entry_tick + waiting_time + fueling_time)
-    subtract_fuel(litres)
+    subtract_fuel(car.litres_to_fuel)
     car.tank_level = car.tank_volume
 
-    log_fueling_ends(car.id, litres, fueling_time)
+    log_fueling_ends(car.id, car.litres_to_fuel, fueling_time)
     waiting_times << waiting_time
   end
 
