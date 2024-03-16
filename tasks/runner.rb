@@ -8,7 +8,7 @@ tank_range = (35..70)
 level_range = (1...35)
 car_delay_range = (10..100)
 simulation_speed = 1000
-closing_tick = 300
+closing_tick = 2000
 
 Timer.configure do |timer|
   timer.simulation_speed = simulation_speed
@@ -26,7 +26,7 @@ end
 
 cars.each do |car|
   car_threads << Thread.new do
-    Waiter.call(rand(car_delay_range))
+    Timer.instance.pause_until(rand(car_delay_range))
     car.queue_up(station)
   end
 end

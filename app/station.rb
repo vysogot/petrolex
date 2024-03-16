@@ -70,7 +70,7 @@ class Station
     log_fueling_starts(car.id, litres, waiting_time)
 
     fueling_time = litres / @fueling_speed
-    Waiter.call(car.entry_tick + waiting_time + fueling_time)
+    Timer.instance.pause_until(car.entry_tick + waiting_time + fueling_time)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 

@@ -16,7 +16,7 @@ class QueueConsumer
     Thread.new do
       loop do
         station.consume_queue
-        sleep(0.001)
+        Timer.instance.wait
         break unless station.is_open
 
         if Timer.instance.current_tick >= closing_tick

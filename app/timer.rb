@@ -38,6 +38,21 @@ class Timer
     1.0 / simulation_speed
   end
 
+  def wait
+    sleep(tick_duration)
+  end
+
+  def over?(given_tick)
+    current_tick >= given_tick
+  end
+
+  def pause_until(given_tick)
+    loop do
+      break if over?(given_tick)
+      wait
+    end
+  end
+
   private
 
   attr_accessor :timer_thread
@@ -46,10 +61,6 @@ class Timer
 
   def instance
     self.class.instance
-  end
-
-  def wait
-    sleep(tick_duration)
   end
 
   def tick
