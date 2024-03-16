@@ -2,18 +2,20 @@
 
 require_relative '../app/petrolex'
 
-SIMULATION_SPEED = 1000
+SIMULATION_SPEED = 100
 
 # CARS
-NUMBER_OF_CARS = 10
+NUMBER_OF_CARS = 5
 TANK_VOLUME_RANGE = (35..70)
 TANK_LEVEL_RANGE = (1...35)
 CAR_DELAY_RANGE = (10..100)
 
 # STATION
-FUEL_RESERVE = 30_000
+FUEL_RESERVE = 1_000
+CLOSING_TICK = 300
+
+# DISPENSER
 FUELING_SPEED = 0.5 # seconds per litre
-CLOSING_TICK = 2_000
 
 Timer.configure do |timer|
   timer.simulation_speed = SIMULATION_SPEED
@@ -59,8 +61,10 @@ end
 
 puts "Petrolex Station Simulator has started.\n\n"
 puts "Simulation speed: x#{SIMULATION_SPEED}"
+puts "Fueling speed: #{FUELING_SPEED} litre/second"
 puts "Fuel reserve: #{station.fuel_reserve}"
-puts "Cars to arrive: #{NUMBER_OF_CARS}\n\n"
+puts "Cars to arrive: #{NUMBER_OF_CARS}"
+puts "Closing tick: #{CLOSING_TICK}\n\n"
 
 Timer.instance.start
 
@@ -76,5 +80,5 @@ puts "\nResults:"
 puts "Cars served: #{station.waiting_times.size}"
 puts "Cars left: #{station.queue.size}"
 puts "Avg car wait: #{avg_time.round(3)} seconds"
-puts "Litres left: #{station.fuel_reserve} litres\n\n"
+puts "Litres left in station: #{station.fuel_reserve} litres\n\n"
 puts 'Petrolex Station Simulator has ended.'

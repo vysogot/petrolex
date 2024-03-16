@@ -76,6 +76,10 @@ class Station
   end
 
   def log_station_closes
-    Logger.info('Station closes. Goodbye!')
+    Logger.info("Station closes. #{last_client_info}Goodbye!")
+  end
+
+  def last_client_info
+    'Finishing last client! ' if occupied?
   end
 end
