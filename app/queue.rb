@@ -3,7 +3,6 @@
 class Queue
   attr_reader :station, :queue
 
-  # longest debug is when you write 'initalize'
   def initialize(station:)
     @station = station
     @queue = station.queue
@@ -16,12 +15,14 @@ class Queue
     Logger.info("Car##{car.id} has arrived and is #{queue.size} in queue")
   end
 
-  def shift
-    queue.shift
+  def consume
+    return unless (car = first_in_line)
+    station.request_fueling(car)
   end
 
-  def consume
-    return unless (car = queue.shift)
-    station.request_fueling(car)
+  private
+
+  def first_in_line
+    queue.shift
   end
 end

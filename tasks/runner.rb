@@ -20,9 +20,12 @@ Timer.configure do |timer|
 end
 
 cars, car_threads = [], []
+dispenser = Dispenser.new(
+  fueling_speed: FUELING_SPEED
+)
 station = Station.new(
   fuel_reserve: FUEL_RESERVE,
-  fueling_speed: FUELING_SPEED
+  dispenser: dispenser
 )
 queue = Queue.new(station:)
 
