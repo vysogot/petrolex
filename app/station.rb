@@ -2,22 +2,15 @@
 
 # Sells fuel
 class Station
-  attr_accessor :fuel_reserve, :is_occupied, :is_open, :queue,
-                :queue_consumer, :waiting_times
+  attr_accessor :fuel_reserve, :is_occupied, :is_open
+  attr_reader :fueling_speed, :queue, :waiting_times, :closing_tick
 
-  def initialize(fuel_reserve: 30_000,
-                 is_occupied: false,
-                 fueling_speed: 0.5,
-                 is_open: false,
-                 closing_tick:)
+  def initialize(fuel_reserve:, fueling_speed:, closing_tick:)
     @fuel_reserve = fuel_reserve
-    @is_occupied = is_occupied
     @fueling_speed = fueling_speed
-    @is_open = is_open
+    @closing_tick = closing_tick
     @waiting_times = []
-
     @queue = []
-    @queue_consumer = ::QueueConsumer.new(station: self, closing_tick:).consumer
   end
 
   def request_fueling(car, litres)
@@ -28,9 +21,10 @@ class Station
   end
 
   def open
-    @is_open = true
+    self.is_occupied = false
+    self.is_open = true
     log_station_opens
-    @queue_consumer.join
+    queue_consumer.join
   end
 
   def close
@@ -69,13 +63,17 @@ class Station
     waiting_time = Timer.instance.current_tick - car.entry_tick
     log_fueling_starts(car.id, litres, waiting_time)
 
-    fueling_time = litres / @fueling_speed
+    fueling_time = litres / fueling_speed
     Timer.instance.pause_until(car.entry_tick + waiting_time + fueling_time)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 
     log_fueling_ends(car.id, litres, fueling_time)
     @waiting_times << waiting_time
+  end
+
+  def queue_consumer
+    ::QueueConsumer.new(station: self, closing_tick:).consumer
   end
 
   def log_fueling_starts(car_id, litres, waiting_time)

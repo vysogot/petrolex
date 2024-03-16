@@ -12,6 +12,7 @@ CAR_DELAY_RANGE = (10..100)
 
 # STATION
 FUEL_RESERVE = 30_000
+FUELING_SPEED = 0.5 # seconds per litre
 CLOSING_TICK = 2_000
 
 Timer.configure do |timer|
@@ -20,8 +21,9 @@ end
 
 cars, car_threads = [], []
 station = Station.new(
-  closing_tick: CLOSING_TICK,
-  fuel_reserve: FUEL_RESERVE
+  fuel_reserve: FUEL_RESERVE,
+  fueling_speed: FUELING_SPEED,
+  closing_tick: CLOSING_TICK
 )
 
 NUMBER_OF_CARS.times do
@@ -38,7 +40,7 @@ cars.each do |car|
   end
 end
 
-puts 'Petrolex Station Simulator has started.'
+puts "Petrolex Station Simulator has started.\n\n"
 puts "Simulation speed: x#{SIMULATION_SPEED}"
 puts "Fuel reserve: #{station.fuel_reserve}"
 puts "Cars to arrive: #{NUMBER_OF_CARS}\n\n"
@@ -52,9 +54,9 @@ total_cars_waiting_time = station.waiting_times.sum
 number_of_cars_fueled = NUMBER_OF_CARS - station.queue.size
 avg_time = total_cars_waiting_time / number_of_cars_fueled.to_f
 
-puts 'Results:'
+puts "\nResults:"
 puts "Cars served: #{station.waiting_times.size}"
 puts "Cars left: #{station.queue.size}"
 puts "Avg car wait: #{avg_time.round(3)} seconds"
-puts "Litres left: #{station.fuel_reserve} litres\n"
+puts "Litres left: #{station.fuel_reserve} litres\n\n"
 puts 'Petrolex Station Simulator has ended.'
