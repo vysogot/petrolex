@@ -8,7 +8,8 @@ class Station
   def initialize(fuel_reserve: 30_000,
                  is_occupied: false,
                  fueling_speed: 0.5,
-                 is_open: false)
+                 is_open: false,
+                 closing_tick:)
     @fuel_reserve = fuel_reserve
     @is_occupied = is_occupied
     @fueling_speed = fueling_speed
@@ -16,9 +17,7 @@ class Station
     @waiting_times = []
 
     @queue = []
-    @queue_consumer = ::QueueConsumer.new(
-      station: self, closing_tick: 200, refresh_step: 1
-    ).consumer
+    @queue_consumer = ::QueueConsumer.new(station: self, closing_tick:).consumer
   end
 
   def request_fueling(car, litres)
@@ -71,7 +70,7 @@ class Station
     log_fueling_starts(car.id, litres, waiting_time)
 
     fueling_time = litres / @fueling_speed
-    Timer.instance.wait(fueling_time)
+    Waiter.call(car.entry_tick + waiting_time + fueling_time)
     @fuel_reserve -= litres
     car.tank_level = car.tank_volume
 

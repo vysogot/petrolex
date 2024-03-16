@@ -7,12 +7,15 @@ fuel_reserve = 30_000
 tank_range = (35..70)
 level_range = (1...35)
 car_delay_range = (10..100)
-simulation_speed = 10
+simulation_speed = 1000
+closing_tick = 2000
 
-Timer.setup(simulation_speed: simulation_speed)
+Timer.configure do |timer|
+  timer.simulation_speed = simulation_speed
+end
 
 # TODO: problem with starting with a closed station
-station = Station.new(fuel_reserve: fuel_reserve, is_open: true)
+station = Station.new(closing_tick:, fuel_reserve:, is_open: true)
 cars = []
 car_threads = []
 
@@ -23,7 +26,7 @@ end
 
 cars.each do |car|
   car_threads << Thread.new do
-    Timer.instance.wait(rand(car_delay_range))
+    Waiter.call(rand(car_delay_range))
     car.queue_up(station)
   end
 end

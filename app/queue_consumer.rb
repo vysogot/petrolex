@@ -2,15 +2,12 @@
 
 # Handles queue of cars at a station
 class QueueConsumer
-  attr_reader :consumer, :station, :closing_tick, :refresh_step
+  attr_reader :consumer, :station, :closing_tick
 
-  def initialize(station:,
-                 closing_tick: 500,
-                 refresh_step: 1)
+  def initialize(station:, closing_tick:)
     @station = station
     @consumer = ENV['app_env'] == 'test' ? mock : real
     @closing_tick = closing_tick
-    @refresh_step = refresh_step
   end
 
   private
@@ -19,14 +16,13 @@ class QueueConsumer
     Thread.new do
       loop do
         station.consume_queue
+        sleep(0.001)
         break unless station.is_open
 
         if Timer.instance.current_tick >= closing_tick
           station.close
           break
         end
-
-        Timer.instance.wait(refresh_step)
       end
     end
   end

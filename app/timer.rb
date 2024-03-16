@@ -2,37 +2,53 @@
 
 # Syncs time
 class Timer
-  attr_accessor :simulation_speed, :tick
+  attr_accessor :simulation_speed
+  attr_reader :current_tick
 
-  def initialize(simulation_speed)
-    @simulation_speed = simulation_speed
-    @tick = 0
+  def initialize
+    @current_tick = 0
+    @tick_step = 1
+    @simulation_speed = 1
   end
 
-  def self.setup(simulation_speed: 1)
-    @@instance ||= new(simulation_speed)
-  end
+  @instance = new
 
   def self.instance
-    @@instance
+    @instance
+  end
+
+  def self.configure
+    yield(instance)
   end
 
   def start
-    tick_step = 1
-
-    Thread.new do |_t|
+    self.timer_thread = Thread.new do
       loop do
-        @@instance.wait(tick_step)
-        @tick += tick_step
+        wait
+        tick
       end
     end
   end
 
-  def wait(seconds)
-    sleep(seconds / @@instance.simulation_speed.to_f)
+  def stop
+    timer_thread.terminate
   end
 
-  def current_tick
-    @@instance.tick
+  private
+
+  attr_accessor :timer_thread
+  attr_reader :tick_step
+  attr_writer :current_tick
+
+  def instance
+    self.class.instance
+  end
+
+  def wait
+    sleep(1.0 / simulation_speed)
+  end
+
+  def tick
+    self.current_tick += tick_step
   end
 end
