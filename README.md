@@ -14,7 +14,7 @@ Have fun!
 
 ```
 bundle install
-bundle exec m test/
+bundle exec m test # in progress
 bundle exec ruby tasks/runner.rb
 ```
 
