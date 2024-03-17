@@ -2,6 +2,8 @@
 
 # Sells fuel
 class Station
+  NotEnoughFuel = Class.new(StandardError)
+
   attr_accessor :fuel_reserve, :is_occupied, :is_open
   attr_reader :fueling_speed, :queue, :dispenser
 
@@ -27,7 +29,9 @@ class Station
   end
 
   def request_fueling(car)
-    can_fuel?(car) and handle_fueling(car)
+    return unless can_fuel?(car)
+
+    handle_fueling(car)
   end
 
   def waiting_times
@@ -59,7 +63,7 @@ class Station
   end
 
   def enough_fuel?(litres)
-    fuel_reserve >= litres
+    fuel_reserve >= litres or raise NotEnoughFuel
   end
 
   def handle_fueling(car)

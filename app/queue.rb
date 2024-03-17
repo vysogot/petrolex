@@ -18,6 +18,8 @@ class Queue
   def consume
     return unless (car = first_in_line)
     station.request_fueling(car)
+  rescue Station::NotEnoughFuel
+    Logger.info("Car##{car.id} needed #{car.litres_to_fuel} litres and has left due to lack of fuel")
   end
 
   private

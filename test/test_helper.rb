@@ -6,9 +6,9 @@ SimpleCov.start
 require_relative '../app/petrolex'
 require 'minitest/autorun'
 
-Timer.setup(simulation_speed: 1000)
-
-ENV['app_env'] = 'test'
+Timer.configure do |timer|
+  timer.simulation_speed = 1000
+end
 
 module QuietLogger
   def run

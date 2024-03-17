@@ -9,7 +9,7 @@ GEM
       method_source (>= 0.6.7)
       rake (>= 0.9.2.2)
     method_source (1.0.0)
-    minitest (5.22.2)
+    minitest (5.22.3)
     parallel (1.24.0)
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -19,7 +19,7 @@ GEM
     rake (13.1.0)
     regexp_parser (2.9.0)
     rexml (3.2.6)
-    rubocop (1.60.2)
+    rubocop (1.62.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -27,14 +27,14 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.30.0)
-      parser (>= 3.2.1.0)
-    rubocop-minitest (0.34.5)
-      rubocop (>= 1.39, < 2.0)
-      rubocop-ast (>= 1.30.0, < 2.0)
+    rubocop-ast (1.31.2)
+      parser (>= 3.3.0.4)
+    rubocop-minitest (0.35.0)
+      rubocop (>= 1.61, < 2.0)
+      rubocop-ast (>= 1.31.1, < 2.0)
     ruby-progressbar (1.13.0)
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -46,7 +46,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-22
-  x86_64-darwin-20
+  ruby
 
 DEPENDENCIES
   m
@@ -55,5 +55,8 @@ DEPENDENCIES
   rubocop-minitest
   simplecov
 
+RUBY VERSION
+   ruby 3.3.0p0
+
 BUNDLED WITH
-   2.5.5
+   2.5.6
