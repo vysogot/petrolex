@@ -3,7 +3,9 @@
 module Petrolex
   # Provides fueling service
   class Station
-    NotEnoughFuel = Class.new(StandardError)
+    Error = Class.new(StandardError)
+    AlreadyClosed = Class.new(Error)
+    NotEnoughFuel = Class.new(Error)
 
     attr_accessor :fuel_reserve, :is_occupied, :is_open
     attr_reader :fueling_speed, :dispenser
@@ -51,7 +53,10 @@ module Petrolex
     end
 
     def can_fuel?(car)
-      open? && available? && enough_fuel?(car.litres_to_fuel)
+      raise AlreadyClosed unless open?
+      raise NotEnoughFuel unless enough_fuel?(car.litres_to_fuel)
+
+      available?
     end
 
     def open?
@@ -67,7 +72,7 @@ module Petrolex
     end
 
     def enough_fuel?(litres)
-      fuel_reserve >= litres or raise NotEnoughFuel
+      fuel_reserve >= litres
     end
 
     def handle_fueling(car)

@@ -5,6 +5,8 @@
 
 require_relative '../app/petrolex'
 require 'minitest/autorun'
+require 'pry'
+require 'pry-nav'
 
 Petrolex::Timer.configure do |timer|
   timer.simulation_speed = 1000

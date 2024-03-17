@@ -3,10 +3,10 @@
 require_relative 'test_helper'
 
 module Petrolex
-  class LoggerTest < Minitest::Test
-    include ::SerialFaker
+  describe Logger do
+    include SerialFaker
 
-    def test_info
+    it 'returns right message' do
       Timer.instance.stub :current_tick, 15 do
         output = catch_output do
           Logger.info('hello')

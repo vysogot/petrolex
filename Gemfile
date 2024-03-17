@@ -6,6 +6,8 @@ ruby '3.3.0'
 
 gem 'rubocop', require: false
 gem 'rubocop-minitest'
+gem 'pry'
+gem 'pry-nav'
 
 group :test do
   gem 'm'
