@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-SimpleCov.start
+# require 'simplecov'
+# SimpleCov.start
 
 require_relative '../app/petrolex'
 require 'minitest/autorun'
 
-Timer.configure do |timer|
+Petrolex::Timer.configure do |timer|
   timer.simulation_speed = 1000
 end
 
 module QuietLogger
   def run
-    Logger.stub :info, nil do
+    Petrolex::Logger.stub :info, nil do
       super
     end
   end

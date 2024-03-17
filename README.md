@@ -25,33 +25,41 @@ Some clients left unfueled:
 Petrolex Station Simulator has started.
 
 Simulation speed: x100
-Fueling speed: 0.5 litre/second
-Fuel reserve: 1000
-Cars to arrive: 5
-Closing tick: 200
+Closing tick: 1000
 
+Cars to arrive: 5
+Station fuel reserve: 100
+Dispenser fueling speed: 0.5 litre/second
+
+Tick | Message
+--------------
 00000: Station opens. Awaiting cars.
-00039: Car#8747 has arrived and is 1 in queue
-00040: Car#8747 waited 1 seconds to fuel
-00040: Car#8747 starts fueling 36 litres
-00059: Car#8685 has arrived and is 1 in queue
-00087: Car#1039 has arrived and is 2 in queue
-00094: Car#6444 has arrived and is 3 in queue
-00096: Car#3415 has arrived and is 4 in queue
-00112: Tanked 36 liters of Car#8747 in 72.0 seconds
-00113: Car#8685 waited 54 seconds to fuel
-00113: Car#8685 starts fueling 22 litres
-00157: Tanked 22 liters of Car#8685 in 44.0 seconds
-00157: Car#1039 waited 70 seconds to fuel
-00157: Car#1039 starts fueling 62 litres
-00200: Station closes. Finishing last client! Goodbye!
-00281: Tanked 62 liters of Car#1039 in 124.0 seconds
+00022: Car#6420 has arrived and is 1 in queue
+00023: Car#6420 waited 1 seconds to fuel
+00023: Car#6420 starts fueling 30 litres
+00033: Car#2662 has arrived and is 1 in queue
+00048: Car#4168 has arrived and is 2 in queue
+00066: Car#3882 has arrived and is 3 in queue
+00078: Car#6791 has arrived and is 4 in queue
+00083: Car#6420 got 30 liters in 60.0 seconds
+00084: Car#2662 waited 51 seconds to fuel
+00084: Car#2662 starts fueling 39 litres
+00162: Car#2662 got 39 liters in 78.0 seconds
+00163: Car#4168 needed 38 litres and has left due to lack of fuel
+00164: Car#3882 waited 98 seconds to fuel
+00164: Car#3882 starts fueling 30 litres
+00224: Car#3882 got 30 liters in 60.0 seconds
+00225: Car#6791 needed 17 litres and has left due to lack of fuel
+01000: Station closes. Goodbye!
 
 Results:
 Cars served: 3
-Cars left: 2
-Avg car wait: 121.667 seconds
-Litres left in station: 880 litres
+Cars left in line: 0
+Cars left the station unserved: 2
+
+Avg wait time: 50.0 seconds
+Avg fueling time: 66.0 seconds
+Fuel left in station: 1 litres
 
 Petrolex Station Simulator has ended.
 ```
@@ -60,40 +68,46 @@ All clients fueled:
 ```
 Petrolex Station Simulator has started.
 
-Simulation speed: x100
-Fueling speed: 0.5 litre/second
-Fuel reserve: 1000
-Cars to arrive: 5
-Closing tick: 500
+Simulation speed: x1000
+Closing tick: 1000
 
+Cars to arrive: 5
+Station fuel reserve: 1000
+Dispenser fueling speed: 0.5 litre/second
+
+Tick | Message
+--------------
 00000: Station opens. Awaiting cars.
-00011: Car#6106 has arrived and is 1 in queue
-00011: Car#6106 waited 0 seconds to fuel
-00011: Car#6106 starts fueling 46 litres
-00034: Car#5917 has arrived and is 1 in queue
-00042: Car#9467 has arrived and is 2 in queue
-00074: Car#5667 has arrived and is 3 in queue
-00084: Car#7345 has arrived and is 4 in queue
-00103: Tanked 46 liters of Car#6106 in 92.0 seconds
-00104: Car#5917 waited 70 seconds to fuel
-00104: Car#5917 starts fueling 34 litres
-00172: Tanked 34 liters of Car#5917 in 68.0 seconds
-00173: Car#9467 waited 131 seconds to fuel
-00173: Car#9467 starts fueling 64 litres
-00301: Tanked 64 liters of Car#9467 in 128.0 seconds
-00302: Car#5667 waited 228 seconds to fuel
-00302: Car#5667 starts fueling 46 litres
-00394: Tanked 46 liters of Car#5667 in 92.0 seconds
-00394: Car#7345 waited 310 seconds to fuel
-00395: Car#7345 starts fueling 21 litres
-00437: Tanked 21 liters of Car#7345 in 42.0 seconds
-00500: Station closes. Goodbye!
+00015: Car#6045 has arrived and is 1 in queue
+00015: Car#6045 waited 0 seconds to fuel
+00015: Car#6045 starts fueling 42 litres
+00062: Car#5663 has arrived and is 1 in queue
+00073: Car#9201 has arrived and is 2 in queue
+00092: Car#4503 has arrived and is 3 in queue
+00099: Car#6045 got 42 liters in 84.0 seconds
+00100: Car#5663 waited 38 seconds to fuel
+00100: Car#5663 starts fueling 29 litres
+00100: Car#789 has arrived and is 3 in queue
+00158: Car#5663 got 29 liters in 58.0 seconds
+00159: Car#9201 waited 86 seconds to fuel
+00159: Car#9201 starts fueling 3 litres
+00165: Car#9201 got 3 liters in 6.0 seconds
+00166: Car#4503 waited 74 seconds to fuel
+00166: Car#4503 starts fueling 46 litres
+00258: Car#4503 got 46 liters in 92.0 seconds
+00259: Car#789 waited 159 seconds to fuel
+00259: Car#789 starts fueling 49 litres
+00357: Car#789 got 49 liters in 98.0 seconds
+01000: Station closes. Goodbye!
 
 Results:
 Cars served: 5
-Cars left: 0
-Avg car wait: 232.4 seconds
-Litres left in station: 789 litres
+Cars left in line: 0
+Cars left the station unserved: 0
+
+Avg wait time: 71.4 seconds
+Avg fueling time: 67.6 seconds
+Fuel left in station: 831 litres
 
 Petrolex Station Simulator has ended.
 ```

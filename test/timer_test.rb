@@ -2,12 +2,14 @@
 
 require_relative 'test_helper'
 
-class TimerTest < Minitest::Test
-  def test_it_ticks
-    Timer.instance.start
+module Petrolex
+  class TimerTest < Minitest::Test
+    def test_it_ticks
+      Timer.instance.start
 
-    sleep(1 / 10.0)
+      sleep(1 / 10.0)
 
-    assert Timer.instance.current_tick.positive?
+      assert Timer.instance.current_tick.positive?
+    end
   end
 end
