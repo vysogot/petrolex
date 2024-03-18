@@ -2,21 +2,23 @@
 
 require_relative '../app/petrolex'
 
-SIMULATION_SPEED = 1000
-SIMULATION_TICKS = 1000
+SIMULATION_SPEED = 10_000
+SIMULATION_TICKS = 100_000
+SIMULATION_TICK_STEP = 1
 
-CARS_NUMBER = 50
+CARS_NUMBER = 100
 CARS_TANK_VOLUME_RANGE = (35..70)
 CARS_TANK_LEVEL_RANGE = (1...35)
-CARS_DELAY_RANGE = (10..100)
+CARS_DELAY_RANGE = (1..90_000)
 
-STATION_FUEL_RESERVE = 1000
-STATION_CLOSING_TICK = 1000
+STATION_FUEL_RESERVE = 100_000
+STATION_CLOSING_TICK = 100_000
 
 DISPENSER_FUELING_SPEED = 0.5 # seconds per litre
 
 Petrolex::Timer.configure do |timer|
   timer.simulation_speed = SIMULATION_SPEED
+  timer.tick_step = SIMULATION_TICK_STEP
 end
 
 cars, car_threads = [], []
@@ -45,6 +47,7 @@ end
 
 CARS_NUMBER.times do
   cars << Petrolex::Car.new(
+    plate: Petrolex::CarsAuthority.instance.generate,
     tank_volume: rand(CARS_TANK_VOLUME_RANGE),
     tank_level: rand(CARS_TANK_LEVEL_RANGE)
   )

@@ -16,7 +16,7 @@ module Petrolex
       waiting << car
       car.entry_tick = Timer.instance.current_tick
 
-      Logger.info("Car##{car.id} has arrived and is #{waiting.size} in queue")
+      Logger.info("Car##{car.plate} has arrived and is #{waiting.size} in queue")
     end
 
     def consume
@@ -25,9 +25,9 @@ module Petrolex
       station.request_fueling(car)
       fueled << car
     rescue Station::AlreadyClosed
-      handle_unserved(car, "Car##{car.id} left as the station is closed")
+      handle_unserved(car, "Car##{car.plate} left as the station is closed")
     rescue Station::NotEnoughFuel
-      handle_unserved(car, "Car##{car.id} needed #{car.litres_to_fuel} litres and has left due to lack of fuel")
+      handle_unserved(car, "Car##{car.plate} needed #{car.litres_to_fuel} litres and has left due to lack of fuel")
     end
 
     private

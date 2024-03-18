@@ -3,7 +3,7 @@
 module Petrolex
   # Syncs simulation time
   class Timer
-    attr_accessor :simulation_speed
+    attr_accessor :tick_step, :simulation_speed
     attr_reader :current_tick
 
     def initialize
@@ -47,6 +47,10 @@ module Petrolex
       current_tick >= given_tick
     end
 
+    def ticks_from(given_tick)
+      current_tick - given_tick
+    end
+
     def pause_until(given_tick)
       loop do
         break if over?(given_tick)
@@ -57,7 +61,6 @@ module Petrolex
     private
 
     attr_accessor :timer_thread
-    attr_reader :tick_step
     attr_writer :current_tick
 
     def instance
