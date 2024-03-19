@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Petrolex
   # Syncs simulation time
   class CarsAuthority
@@ -7,8 +9,8 @@ module Petrolex
 
     @instance = new
 
-    def self.instance
-      @instance
+    class << self
+      attr_reader :instance
     end
 
     def generate

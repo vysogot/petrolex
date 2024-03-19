@@ -14,8 +14,8 @@ module Petrolex
 
     @instance = new
 
-    def self.instance
-      @instance
+    class << self
+      attr_reader :instance
     end
 
     def self.configure
@@ -54,6 +54,7 @@ module Petrolex
     def pause_until(given_tick)
       loop do
         break if over?(given_tick)
+
         wait
       end
     end

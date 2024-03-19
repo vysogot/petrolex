@@ -2,17 +2,17 @@
 
 require_relative '../app/petrolex'
 
-SIMULATION_SPEED = 10_000
-SIMULATION_TICKS = 100_000
+SIMULATION_SPEED = 1000
+SIMULATION_TICKS = 400
 SIMULATION_TICK_STEP = 1
 
-CARS_NUMBER = 100
+CARS_NUMBER = 5
 CARS_TANK_VOLUME_RANGE = (35..70)
 CARS_TANK_LEVEL_RANGE = (1...35)
-CARS_DELAY_RANGE = (1..90_000)
+CARS_DELAY_RANGE = (1..300)
 
-STATION_FUEL_RESERVE = 100_000
-STATION_CLOSING_TICK = 100_000
+STATION_FUEL_RESERVE = 300
+STATION_CLOSING_TICK = SIMULATION_TICKS
 
 DISPENSER_FUELING_SPEED = 0.5 # seconds per litre
 
@@ -21,13 +21,14 @@ Petrolex::Timer.configure do |timer|
   timer.tick_step = SIMULATION_TICK_STEP
 end
 
-cars, car_threads = [], []
+cars = []
+car_threads = []
 dispenser = Petrolex::Dispenser.new(
   fueling_speed: DISPENSER_FUELING_SPEED
 )
 station = Petrolex::Station.new(
   fuel_reserve: STATION_FUEL_RESERVE,
-  dispenser: dispenser
+  dispenser:
 )
 queue = Petrolex::Queue.new(station:)
 
@@ -66,8 +67,8 @@ puts "Closing tick: #{STATION_CLOSING_TICK}\n\n"
 puts "Cars to arrive: #{CARS_NUMBER}"
 puts "Station fuel reserve: #{station.fuel_reserve}"
 puts "Dispenser fueling speed: #{DISPENSER_FUELING_SPEED} litre/second\n\n"
-puts "Tick | Message"
-puts "--------------"
+puts 'Tick | Message'
+puts '--------------'
 
 Petrolex::Timer.instance.start
 
