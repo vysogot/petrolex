@@ -9,7 +9,7 @@ require 'pry'
 require 'pry-nav'
 
 Petrolex::Timer.configure do |timer|
-  timer.simulation_speed = 1000
+  timer.simulation_speed = 10_000
 end
 
 module QuietLogger

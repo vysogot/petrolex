@@ -48,7 +48,7 @@ end
 
 CARS_NUMBER.times do
   cars << Petrolex::Car.new(
-    plate: Petrolex::CarsAuthority.instance.generate,
+    plate: Petrolex::CarsAuthority.instance.request_plate,
     tank_volume: rand(CARS_TANK_VOLUME_RANGE),
     tank_level: rand(CARS_TANK_LEVEL_RANGE)
   )

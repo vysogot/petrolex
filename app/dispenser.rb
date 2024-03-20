@@ -48,12 +48,12 @@ module Petrolex
     end
 
     def log_fueling_starts
-      Logger.info("Car##{car.plate} waited #{waiting_time} seconds to fuel")
-      Logger.info("Car##{car.plate} starts fueling #{car.litres_to_fuel} litres")
+      Logger.info("#{car.plate} waited #{waiting_time} seconds to fuel")
+      Logger.info("#{car.plate} starts fueling #{car.litres_to_fuel} litres")
     end
 
     def log_fueling_ends
-      Logger.info("Car##{car.plate} got #{car.litres_to_fuel} liters in #{fueling_time} seconds")
+      Logger.info("#{car.plate} got #{car.litres_to_fuel} liters in #{fueling_time} seconds")
     end
   end
 end

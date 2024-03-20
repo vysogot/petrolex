@@ -12,7 +12,7 @@ module Petrolex
           Logger.info('hello')
         end
 
-        assert_equal '00015: hello', output.chomp
+        assert_equal '000015: hello', output.chomp
       end
     end
   end

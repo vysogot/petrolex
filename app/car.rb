@@ -13,7 +13,7 @@ module Petrolex
     end
 
     def fuel(litres)
-      self.tank_volume += litres
+      self.tank_level += litres
     end
 
     def litres_to_fuel
@@ -22,7 +22,7 @@ module Petrolex
 
     private
 
-    attr_accessor :tank_volume
-    attr_reader :tank_level
+    attr_accessor :tank_level
+    attr_reader :tank_volume
   end
 end
