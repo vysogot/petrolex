@@ -76,6 +76,8 @@ station_thread.join
 queue_consumer_thread.join
 car_threads.each(&:join)
 
+Petrolex::Timer.instance.stop
+
 avg_wait_time = station.waiting_times.sum / queue.fueled.size.to_f
 avg_fuel_time = station.fueling_times.sum / queue.fueled.size.to_f
 

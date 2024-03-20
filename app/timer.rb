@@ -16,10 +16,10 @@ module Petrolex
 
     class << self
       attr_reader :instance
-    end
 
-    def self.configure
-      yield(instance)
+      def configure
+        yield(instance)
+      end
     end
 
     def start
@@ -63,10 +63,6 @@ module Petrolex
 
     attr_accessor :timer_thread
     attr_writer :current_tick
-
-    def instance
-      self.class.instance
-    end
 
     def tick
       self.current_tick += tick_step
