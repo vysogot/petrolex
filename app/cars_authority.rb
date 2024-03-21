@@ -3,7 +3,7 @@
 module Petrolex
   # Syncs simulation time
   class CarsAuthority
-    PREFIXES = ['PGN', 'WAW', 'KRA']
+    PREFIXES = %w[PGN WAW KRA].freeze
 
     def initialize
       @last_plate = 0
@@ -27,7 +27,7 @@ module Petrolex
     end
 
     def distribute
-      district + '-' + last_plate.to_s.rjust(6, '0')
+      "#{district}-#{last_plate}"
     end
 
     def district
