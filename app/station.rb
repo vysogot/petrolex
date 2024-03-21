@@ -14,6 +14,7 @@ module Petrolex
       @fuel_reserve = fuel_reserve
       @fueling_speed = fueling_speed
       @dispenser = mount(dispenser)
+      @lock = Mutex.new
     end
 
     def open

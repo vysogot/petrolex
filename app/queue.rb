@@ -3,20 +3,21 @@
 module Petrolex
   # Manages cars in a station
   class Queue
-    attr_reader :station, :waiting, :unserved, :fueled
+    attr_reader :station, :waiting, :unserved, :fueled, :id
 
-    def initialize(station:)
+    def initialize(station:, id:)
       @station = station
       @waiting = []
       @unserved = []
       @fueled = []
+      @id = id
     end
 
     def push(car)
       waiting << car
       car.entry_tick = Timer.instance.current_tick
 
-      Logger.info("#{car.plate} has arrived and is #{waiting.size} in queue")
+      Logger.info("#{car.plate} has arrived and is #{waiting.size} in queue ##{id}")
     end
 
     def consume

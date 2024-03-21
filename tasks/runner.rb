@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 require_relative '../app/petrolex'
+# require 'rubygems'
+require 'pry'
 
 SIMULATION_SPEED = 1000
-SIMULATION_TICKS = 400
+SIMULATION_TICKS = 300
 SIMULATION_TICK_STEP = 1
 
-CARS_NUMBER = 5
+CARS_NUMBER = 10
 CARS_TANK_VOLUME_RANGE = (35..70)
 CARS_TANK_LEVEL_RANGE = (1...35)
-CARS_DELAY_RANGE = (1..300)
+CARS_DELAY_RANGE = (1..10)
+
+QUEUES_NUMBER = 2
 
 STATION_FUEL_RESERVE = 300
 STATION_CLOSING_TICK = SIMULATION_TICKS
@@ -23,6 +27,8 @@ end
 
 cars = []
 car_threads = []
+queues = []
+queue_consumer_threads = []
 dispenser = Petrolex::Dispenser.new(
   fueling_speed: DISPENSER_FUELING_SPEED
 )
@@ -30,7 +36,6 @@ station = Petrolex::Station.new(
   fuel_reserve: STATION_FUEL_RESERVE,
   dispenser:
 )
-queue = Petrolex::Queue.new(station:)
 
 station_thread = Thread.new do
   station.open
@@ -38,11 +43,21 @@ station_thread = Thread.new do
   station.close
 end
 
-queue_consumer_thread = Thread.new do
-  loop do
-    queue.consume
-    Petrolex::Timer.instance.wait
-    break if Petrolex::Timer.instance.over?(SIMULATION_TICKS)
+(1..QUEUES_NUMBER).each do |id|
+  queues << Petrolex::Queue.new(
+    id:,
+    station:
+  )
+end
+
+queue_consumer_mutex = Mutex.new
+queues.each do |queue|
+  queue_consumer_threads << Thread.new do
+    loop do
+      queue_consumer_mutex.synchronize { queue.consume }
+      Petrolex::Timer.instance.wait
+      break if Petrolex::Timer.instance.over?(SIMULATION_TICKS)
+    end
   end
 end
 
@@ -54,10 +69,11 @@ CARS_NUMBER.times do
   )
 end
 
+queueing_mutex = Mutex.new
 cars.each do |car|
   car_threads << Thread.new do
     Petrolex::Timer.instance.pause_until(rand(CARS_DELAY_RANGE))
-    queue.push(car)
+    queueing_mutex.synchronize { queues.sample.push(car) }
   end
 end
 
@@ -73,19 +89,32 @@ puts '--------------'
 Petrolex::Timer.instance.start
 
 station_thread.join
-queue_consumer_thread.join
+queue_consumer_threads.each(&:join)
 car_threads.each(&:join)
 
 Petrolex::Timer.instance.stop
 
-avg_wait_time = station.waiting_times.sum / queue.fueled.size.to_f
-avg_fuel_time = station.fueling_times.sum / queue.fueled.size.to_f
+fueled = queues.map(&:fueled).flatten.size
+waiting = queues.map(&:waiting).flatten.size
+unserved = queues.map(&:unserved).flatten.size
+
+avg_wait_time = station.waiting_times.sum / fueled.to_f
+avg_fuel_time = station.fueling_times.sum / fueled.to_f
 
 puts "\nResults:"
-puts "Cars served: #{queue.fueled.size}"
-puts "Cars left in queue: #{queue.waiting.size}"
-puts "Cars left the station unserved: #{queue.unserved.size}\n\n"
+puts "Cars served: #{fueled}"
+puts "Cars left in queue: #{waiting}"
+puts "Cars left the station unserved: #{unserved}\n\n"
 puts "Avg wait time: #{avg_wait_time.round(3)} seconds"
 puts "Avg fueling time: #{avg_fuel_time.round(3)} seconds"
 puts "Fuel left in station: #{station.fuel_reserve} litres\n\n"
+
+puts "\nQueues details:"
+queues.each do |queue|
+  puts "Queue #{queue.id}"
+  puts "Cars served: #{queue.fueled.size}"
+  puts "Cars left in queue: #{queue.waiting.size}"
+  puts "Cars left the station unserved: #{queue.unserved.size}\n\n"
+end
+
 puts 'Petrolex Station Simulator has ended.'
