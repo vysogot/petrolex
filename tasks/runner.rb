@@ -4,7 +4,7 @@ require_relative '../app/petrolex'
 # require 'rubygems'
 require 'pry'
 
-SIMULATION_SPEED = 1000
+SIMULATION_SPEED = 100
 SIMULATION_TICKS = 300
 SIMULATION_TICK_STEP = 1
 
@@ -13,11 +13,12 @@ CARS_TANK_VOLUME_RANGE = (35..70)
 CARS_TANK_LEVEL_RANGE = (1...35)
 CARS_DELAY_RANGE = (1..10)
 
-QUEUES_NUMBER = 2
+QUEUES_NUMBER = 3
 
 STATION_FUEL_RESERVE = 300
 STATION_CLOSING_TICK = SIMULATION_TICKS
 
+DISPENSERS_NUMBER = 3
 DISPENSER_FUELING_SPEED = 0.5 # seconds per litre
 
 Petrolex::Timer.configure do |timer|
@@ -29,12 +30,17 @@ cars = []
 car_threads = []
 queues = []
 queue_consumer_threads = []
-dispenser = Petrolex::Dispenser.new(
-  fueling_speed: DISPENSER_FUELING_SPEED
-)
+dispensers = []
+(1..DISPENSERS_NUMBER).each do |id|
+  dispensers << Petrolex::Dispenser.new(
+    id:,
+    fueling_speed: DISPENSER_FUELING_SPEED
+  )
+end
+
 station = Petrolex::Station.new(
   fuel_reserve: STATION_FUEL_RESERVE,
-  dispenser:
+  dispensers:
 )
 
 station_thread = Thread.new do
@@ -50,11 +56,10 @@ end
   )
 end
 
-queue_consumer_mutex = Mutex.new
 queues.each do |queue|
   queue_consumer_threads << Thread.new do
     loop do
-      queue_consumer_mutex.synchronize { queue.consume }
+      queue.consume
       Petrolex::Timer.instance.wait
       break if Petrolex::Timer.instance.over?(SIMULATION_TICKS)
     end
@@ -111,7 +116,7 @@ puts "Fuel left in station: #{station.fuel_reserve} litres\n\n"
 
 puts "\nQueues details:"
 queues.each do |queue|
-  puts "Queue #{queue.id}"
+  puts "Queue #{queue.name}"
   puts "Cars served: #{queue.fueled.size}"
   puts "Cars left in queue: #{queue.waiting.size}"
   puts "Cars left the station unserved: #{queue.unserved.size}\n\n"

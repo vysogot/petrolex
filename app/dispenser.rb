@@ -6,7 +6,9 @@ module Petrolex
     attr_accessor :station, :car
     attr_reader :fueling_speed, :waiting_times, :fueling_times
 
-    def initialize(fueling_speed:)
+    def initialize(id:, fueling_speed:)
+      @id = id
+      @name = "DISP##{id}"
       @fueling_speed = fueling_speed
       @waiting_times = []
       @fueling_times = []
@@ -25,6 +27,8 @@ module Petrolex
     end
 
     private
+
+    attr_reader :name
 
     def occupy(car)
       self.car = car
@@ -48,12 +52,12 @@ module Petrolex
     end
 
     def log_fueling_starts
-      Logger.info("#{car.plate} waited #{waiting_time} seconds to fuel")
-      Logger.info("#{car.plate} starts fueling #{car.litres_to_fuel} litres")
+      Logger.info("#{car.plate} waited for #{waiting_time} seconds to fuel at #{name}")
+      Logger.info("#{car.plate} starts fueling #{car.litres_to_fuel} litres at #{name}")
     end
 
     def log_fueling_ends
-      Logger.info("#{car.plate} got #{car.litres_to_fuel} liters in #{fueling_time} seconds")
+      Logger.info("#{car.plate} got #{car.litres_to_fuel} liters in #{fueling_time} seconds at #{name}")
     end
   end
 end

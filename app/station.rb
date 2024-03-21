@@ -8,12 +8,12 @@ module Petrolex
     NotEnoughFuel = Class.new(Error)
 
     attr_accessor :fuel_reserve, :is_occupied, :is_open
-    attr_reader :fueling_speed, :dispenser
+    attr_reader :fueling_speed, :dispensers
 
-    def initialize(fuel_reserve:, dispenser:)
+    def initialize(fuel_reserve:, dispensers:)
       @fuel_reserve = fuel_reserve
       @fueling_speed = fueling_speed
-      @dispenser = mount(dispenser)
+      @dispensers = mount(dispensers)
       @lock = Mutex.new
     end
 
@@ -38,18 +38,18 @@ module Petrolex
     end
 
     def waiting_times
-      dispenser.waiting_times
+      dispensers.map(&:waiting_times).flatten
     end
 
     def fueling_times
-      dispenser.fueling_times
+      dispensers.map(&:fueling_times).flatten
     end
 
     private
 
-    def mount(dispenser)
-      dispenser.tap do |d|
-        d.station = self
+    def mount(dispensers)
+      dispensers.tap do |ds|
+        ds.each { |d| d.station = self }
       end
     end
 
@@ -69,7 +69,11 @@ module Petrolex
     end
 
     def available?
-      dispenser.available?
+      !first_available_dispenser.nil?
+    end
+
+    def first_available_dispenser
+      dispensers.detect(&:available?)
     end
 
     def enough_fuel?(litres)
@@ -77,7 +81,7 @@ module Petrolex
     end
 
     def handle_fueling(car)
-      dispenser.fuel(car)
+      first_available_dispenser.fuel(car)
       subtract_fuel(car.litres_to_fuel)
     end
 

@@ -35,7 +35,7 @@ module Petrolex
     end
 
     def last_plate_formatted
-      last_plate.to_s.rjust(6, '0')
+      last_plate.to_s
     end
 
     attr_accessor :last_plate
