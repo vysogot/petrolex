@@ -3,10 +3,12 @@
 module Petrolex
   # Gives plates to a car
   class CarsAuthority
+    STARTS_FROM = 0
+    GENERATION_STEP = 1
     PREFIXES = %w[PGN WAW KRA].freeze
 
     def initialize
-      @last_plate = 0
+      @last_plate = STARTS_FROM
     end
 
     @instance = new
@@ -23,7 +25,7 @@ module Petrolex
     private
 
     def generate
-      self.last_plate += 1
+      self.last_plate += GENERATION_STEP
     end
 
     def distribute
@@ -31,7 +33,7 @@ module Petrolex
     end
 
     def district
-      PREFIXES[rand(0..2)]
+      PREFIXES.sample
     end
 
     attr_accessor :last_plate
