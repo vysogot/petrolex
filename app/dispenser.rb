@@ -35,7 +35,7 @@ module Petrolex
     def execute
       waiting_times << waiting_time
       Timer.instance.pause_until(car.entry_tick + waiting_time + fueling_time)
-      car.fuel(car.litres_to_fuel)
+      car.fuel
       fueling_times << fueling_time
     end
 
@@ -44,16 +44,16 @@ module Petrolex
     end
 
     def fueling_time
-      car.litres_to_fuel / fueling_speed
+      car.want / fueling_speed
     end
 
     def log_fueling_starts
       Logger.info("#{car.plate} waited #{waiting_time} seconds to fuel")
-      Logger.info("#{car.plate} starts fueling #{car.litres_to_fuel} litres")
+      Logger.info("#{car.plate} starts fueling #{car.want} litres")
     end
 
     def log_fueling_ends
-      Logger.info("#{car.plate} got #{car.litres_to_fuel} liters in #{fueling_time} seconds")
+      Logger.info("#{car.plate} got #{car.want} liters in #{fueling_time} seconds")
     end
   end
 end

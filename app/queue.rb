@@ -27,7 +27,7 @@ module Petrolex
     rescue Station::AlreadyClosed
       handle_unserved(car, "#{car.plate} left as the station is closed")
     rescue Station::NotEnoughFuel
-      handle_unserved(car, "#{car.plate} needed #{car.litres_to_fuel} litres and has left due to lack of fuel")
+      handle_unserved(car, "#{car.plate} needed #{car.want} litres and has left due to lack of fuel")
     end
 
     private

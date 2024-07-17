@@ -11,8 +11,8 @@ module Petrolex
       station = Station.new(fuel_reserve: 1000, dispenser:)
       @queue = Queue.new(station:)
 
-      @car1 = Car.new(plate: '000001', tank_volume: 50, tank_level: 30)
-      @car2 = Car.new(plate: '000002', tank_volume: 70, tank_level: 10)
+      @car1 = Car.new(plate: '000001', volume: 50, level: 30)
+      @car2 = Car.new(plate: '000002', volume: 70, level: 10)
 
       station.open
     end

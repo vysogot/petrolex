@@ -7,8 +7,8 @@ SIMULATION_TICKS = 400
 SIMULATION_TICK_STEP = 1
 
 CARS_NUMBER = 5
-CARS_TANK_VOLUME_RANGE = (35..70)
-CARS_TANK_LEVEL_RANGE = (1...35)
+CARS_VOLUME_RANGE = (35..70)
+CARS_LEVEL_RANGE = (1...35)
 CARS_DELAY_RANGE = (1..300)
 
 STATION_FUEL_RESERVE = 300
@@ -49,8 +49,8 @@ end
 CARS_NUMBER.times do
   cars << Petrolex::Car.new(
     plate: Petrolex::CarsAuthority.instance.request_plate,
-    tank_volume: rand(CARS_TANK_VOLUME_RANGE),
-    tank_level: rand(CARS_TANK_LEVEL_RANGE)
+    volume: rand(CARS_VOLUME_RANGE),
+    level: rand(CARS_LEVEL_RANGE)
   )
 end
 

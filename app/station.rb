@@ -54,7 +54,7 @@ module Petrolex
 
     def can_fuel?(car)
       raise AlreadyClosed unless open?
-      raise NotEnoughFuel unless enough_fuel?(car.litres_to_fuel)
+      raise NotEnoughFuel unless enough_fuel?(car.want)
 
       available?
     end
@@ -77,7 +77,7 @@ module Petrolex
 
     def handle_fueling(car)
       dispenser.fuel(car)
-      subtract_fuel(car.litres_to_fuel)
+      subtract_fuel(car.want)
     end
 
     def subtract_fuel(litres)

@@ -4,25 +4,25 @@ module Petrolex
   # Fuels at the Station
   class Car
     attr_accessor :entry_tick
-    attr_reader :plate
+    attr_reader :plate, :level
 
-    def initialize(plate:, tank_volume:, tank_level:)
+    def initialize(plate:, volume:, level:)
       @plate = plate
-      @tank_volume = tank_volume
-      @tank_level = tank_level
+      @volume = volume
+      @level = level
     end
 
-    def fuel(litres)
-      self.tank_level += litres
+    def fuel
+      self.level += want
     end
 
-    def litres_to_fuel
-      @litres_to_fuel ||= tank_volume - tank_level
+    def want
+      @want ||= volume - level
     end
 
     private
 
-    attr_accessor :tank_level
-    attr_reader :tank_volume
+    attr_reader :volume
+    attr_writer :level
   end
 end
