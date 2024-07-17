@@ -117,12 +117,10 @@ Petrolex Station Simulator has ended.
 #### Car
 
 * Entry tick doesn't belong to a car. Some other object should keep this info, like: [car, tick]
-* Litres to fuel shouldn't be a method but an attribute with given value
-* No need for `tank` prefix. Just volume and level
 
 #### Dispenser
 
-* It looks bad, something smells. The logging methods look dirty.
+* It looks bad, something smells.
 * It needs to use conditional variable from a station to handle queue.
 
 #### Queue
@@ -133,11 +131,10 @@ Petrolex Station Simulator has ended.
 
 * Handles too much
 
-
 #### Runner
 
 * Is getting hard to read
 
 #### Tests
 
-* They don't work!
+* There are too few
