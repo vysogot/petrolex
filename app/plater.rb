@@ -2,7 +2,7 @@
 
 module Petrolex
   # Gives plates to a car
-  class CarsAuthority
+  class Plater
     STARTS_FROM = 0
     GENERATION_STEP = 1
     PREFIXES = %w[PGN WAW KRA].freeze
