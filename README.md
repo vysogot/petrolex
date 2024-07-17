@@ -111,3 +111,33 @@ Fuel left in station: 831 litres
 
 Petrolex Station Simulator has ended.
 ```
+
+### TODO
+
+#### Car
+
+* Entry tick doesn't belong to a car. Some other object should keep this info, like: [car, tick]
+* Litres to fuel shouldn't be a method but an attribute with given value
+* No need for `tank` prefix. Just volume and level
+
+#### Dispenser
+
+* It looks bad, something smells. The logging methods look dirty.
+* It needs to use conditional variable from a station to handle queue.
+
+#### Queue
+
+* Bad structures to keep data
+
+#### Station
+
+* Handles too much
+
+
+#### Runner
+
+* Is getting hard to read
+
+#### Tests
+
+* They don't work!

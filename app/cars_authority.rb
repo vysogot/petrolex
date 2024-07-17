@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Petrolex
-  # Syncs simulation time
+  # Gives plates to a car
   class CarsAuthority
     PREFIXES = %w[PGN WAW KRA].freeze
 
