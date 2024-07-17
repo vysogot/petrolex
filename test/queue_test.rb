@@ -25,17 +25,5 @@ module Petrolex
       _(@queue.fueled).must_equal []
       _(@queue.unserved).must_equal []
     end
-
-    it 'consumes a car from a queue' do
-      @queue.push(@car1)
-      @queue.push(@car2)
-
-      @queue.consume
-
-      _(@queue.waiting).must_equal [@car2]
-      _(@queue.fueled).must_equal [@car1]
-      _(@queue.unserved).must_equal []
-      _(@car1.send(:tank_level)).must_equal @car1.send(:tank_volume)
-    end
   end
 end

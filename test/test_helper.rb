@@ -14,9 +14,7 @@ end
 
 module QuietLogger
   def run
-    Petrolex::Logger.stub :info, nil do
-      super
-    end
+    Petrolex::Logger.stub(:info, nil) { super }
   end
 end
 
