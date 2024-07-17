@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 require_relative 'timer'
 require_relative 'logger'
 require_relative 'dispenser'
