@@ -12,13 +12,15 @@ module Petrolex
       @level = level
     end
 
-    def fuel
-      self.level += want
+    def fuel(units)
+      self.level += units
     end
 
     def want
       @want ||= volume - level
     end
+
+    def to_s = plate
 
     private
 

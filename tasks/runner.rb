@@ -3,34 +3,34 @@
 require_relative '../app/petrolex'
 
 SIMULATION_SPEED = 1000
-SIMULATION_TICKS = 400
+SIMULATION_TICKS = 500
 SIMULATION_TICK_STEP = 1
 
-CARS_NUMBER = 5
+CARS_NUMBER = 10
 CARS_VOLUME_RANGE = (35..70)
 CARS_LEVEL_RANGE = (1...35)
 CARS_DELAY_RANGE = (1..300)
 
-STATION_FUEL_RESERVE = 300
+STATION_FUEL_RESERVE = 100
 STATION_CLOSING_TICK = SIMULATION_TICKS
 
-DISPENSER_FUELING_SPEED = 0.5 # seconds per litre
+PUMP_SLOW_FUELING_SPEED = 1 # seconds per litre
+PUMP_FAST_FUELING_SPEED = 3
 
 Petrolex::Timer.configure do |timer|
   timer.simulation_speed = SIMULATION_SPEED
   timer.tick_step = SIMULATION_TICK_STEP
 end
 
+pump1 = Petrolex::Pump.new(speed: PUMP_SLOW_FUELING_SPEED)
+pump2 = Petrolex::Pump.new(speed: PUMP_FAST_FUELING_SPEED)
+station = Petrolex::Station.new(reserve: STATION_FUEL_RESERVE)
+queue = Petrolex::Queue.new(station:)
+
 cars = []
 car_threads = []
-dispenser = Petrolex::Dispenser.new(
-  fueling_speed: DISPENSER_FUELING_SPEED
-)
-station = Petrolex::Station.new(
-  fuel_reserve: STATION_FUEL_RESERVE,
-  dispenser:
-)
-queue = Petrolex::Queue.new(station:)
+station.add_pump(pump1)
+station.add_pump(pump2)
 
 station_thread = Thread.new do
   station.open
@@ -38,20 +38,14 @@ station_thread = Thread.new do
   station.close
 end
 
-queue_consumer_thread = Thread.new do
-  loop do
-    queue.consume
-    Petrolex::Timer.instance.wait
-    break if Petrolex::Timer.instance.over?(SIMULATION_TICKS)
-  end
-end
+queue_consumer_thread = Thread.new { queue.consume }
 
 CARS_NUMBER.times do
-  cars << Petrolex::Car.new(
-    plate: Petrolex::Plater.instance.request_plate,
-    volume: rand(CARS_VOLUME_RANGE),
-    level: rand(CARS_LEVEL_RANGE)
-  )
+  plate = Petrolex::Plater.instance.request_plate
+  volume = rand(CARS_VOLUME_RANGE)
+  level = rand(CARS_LEVEL_RANGE)
+
+  cars << Petrolex::Car.new(plate:, volume:, level:)
 end
 
 cars.each do |car|
@@ -65,8 +59,9 @@ puts "Petrolex Station Simulator has started.\n\n"
 puts "Simulation speed: x#{SIMULATION_SPEED}"
 puts "Closing tick: #{STATION_CLOSING_TICK}\n\n"
 puts "Cars to arrive: #{CARS_NUMBER}"
-puts "Station fuel reserve: #{station.fuel_reserve}"
-puts "Dispenser fueling speed: #{DISPENSER_FUELING_SPEED} litre/second\n\n"
+puts "Station fuel reserve: #{station.reserve}"
+puts "Pump1 fueling speed: #{PUMP_SLOW_FUELING_SPEED} seconds per litre\n\n"
+puts "Pump2 fueling speed: #{PUMP_FAST_FUELING_SPEED} seconds per litre\n\n"
 puts 'Tick | Message'
 puts '--------------'
 
@@ -78,14 +73,16 @@ car_threads.each(&:join)
 
 Petrolex::Timer.instance.stop
 
-avg_wait_time = station.waiting_times.sum / queue.fueled.size.to_f
-avg_fuel_time = station.fueling_times.sum / queue.fueled.size.to_f
-
+# avg_wait_time = station.waiting_times.sum / queue.fueled.size.to_f
+# avg_fuel_time = station.fueling_times.sum / queue.fueled.size.to_f
+#
 puts "\nResults:"
-puts "Cars served: #{queue.fueled.size}"
-puts "Cars left in queue: #{queue.waiting.size}"
-puts "Cars left the station unserved: #{queue.unserved.size}\n\n"
-puts "Avg wait time: #{avg_wait_time.round(3)} seconds"
-puts "Avg fueling time: #{avg_fuel_time.round(3)} seconds"
-puts "Fuel left in station: #{station.fuel_reserve} litres\n\n"
+puts "Cars served: #{queue.report[:full].size}"
+# puts "Cars left in queue: #{queue.waiting.size}"
+# puts "Cars left the station unserved: #{queue.unserved.size}\n\n"
+# puts "Avg wait time: #{avg_wait_time.round(3)} seconds"
+# puts "Avg fueling time: #{avg_fuel_time.round(3)} seconds"
+puts "Fuel left in station: #{station.reserve} litres\n\n"
+puts "Report"
+pp queue.report
 puts 'Petrolex Station Simulator has ended.'

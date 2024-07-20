@@ -1,12 +1,12 @@
 ### Petrol Station Simulator
 
-Each car, station with dispenser, and queue consumer work in their own threads.
+Each car, station with pump, and queue consumer work in their own threads.
 There is a timer that syncs them.
 
-The purpose of simulation is to find an optimal station/dispenser/queueing setup.
+The purpose of simulation is to find an optimal station/pump/queueing setup.
 The metric is an avarage waiting time of a car.
 
-Future ideas: more stations, more dispensers, transactions, visualising, online game etc.
+Future ideas: more stations, more pumps, transactions, visualising, online game etc.
 
 Have fun!
 
@@ -29,7 +29,7 @@ Closing tick: 1000
 
 Cars to arrive: 5
 Station fuel reserve: 100
-Dispenser fueling speed: 0.5 litre/second
+Pump fueling speed: 0.5 litre/second
 
 Tick | Message
 --------------
@@ -73,7 +73,7 @@ Closing tick: 1000
 
 Cars to arrive: 5
 Station fuel reserve: 1000
-Dispenser fueling speed: 0.5 litre/second
+Pump fueling speed: 0.5 litre/second
 
 Tick | Message
 --------------
@@ -114,27 +114,21 @@ Petrolex Station Simulator has ended.
 
 ### TODO
 
-#### Car
-
-* Entry tick doesn't belong to a car. Some other object should keep this info, like: [car, tick]
-
-#### Dispenser
-
-* It looks bad, something smells.
-* It needs to use conditional variable from a station to handle queue.
-
-#### Queue
-
-* Bad structures to keep data
-
-#### Station
-
-* Handles too much
-
 #### Runner
 
 * Is getting hard to read
 
 #### Tests
 
-* There are too few
+* Out of date
+
+#### Queue, station, pump
+
+* All need refactoring but now work on a right basis
+* The code is completely WIP
+
+#### Issues
+
+* Report in unstructured and needs its own object
+* Report shows in runner before the last car gets finished
+* Report needs aggregations

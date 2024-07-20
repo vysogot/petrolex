@@ -7,8 +7,8 @@ module Petrolex
     include QuietLogger
 
     before do
-      dispenser = Dispenser.new(fueling_speed: 0.5)
-      station = Station.new(fuel_reserve: 1000, dispenser:)
+      pump = Pump.new(fueling_speed: 0.5)
+      station = Station.new(fuel_reserve: 1000, pump:)
       @queue = Queue.new(station:)
 
       @car1 = Car.new(plate: '000001', volume: 50, level: 30)

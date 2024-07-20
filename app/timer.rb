@@ -51,6 +51,10 @@ module Petrolex
       current_tick - given_tick
     end
 
+    def pause_for(ticks)
+      pause_until(current_tick + ticks)
+    end
+
     def pause_until(given_tick)
       loop do
         break if over?(given_tick)

@@ -3,42 +3,57 @@
 module Petrolex
   # Manages cars in a station
   class Queue
-    attr_reader :station, :waiting, :unserved, :fueled
+    attr_reader :station, :queue_lock, :waiting, :cond_var, :report_lock, :report
 
     def initialize(station:)
       @station = station
+      @queue_lock = Mutex.new
+      @report_lock = Mutex.new
+      @cond_var = ConditionVariable.new
       @waiting = []
-      @unserved = []
-      @fueled = []
+      @report = {}
     end
 
     def push(car)
-      waiting << car
-      car.entry_tick = Timer.instance.current_tick
+      return unless station.open?
 
-      Logger.info("#{car.plate} has arrived and is #{waiting.size} in queue")
+      queue_lock.synchronize do
+        Logger.info("#{car} is #{waiting.size.succ} in queue")
+        waiting << car
+        cond_var.signal
+      end
+    end
+
+    def print_report
+      report
     end
 
     def consume
-      return unless (car = first_in_waiting)
+      station.pumps.each do |pump|
+        Thread.new do
+          loop do
+            break unless station.open?
 
-      station.request_fueling(car)
-      fueled << car
-    rescue Station::AlreadyClosed
-      handle_unserved(car, "#{car.plate} left as the station is closed")
-    rescue Station::NotEnoughFuel
-      handle_unserved(car, "#{car.plate} needed #{car.want} litres and has left due to lack of fuel")
-    end
+            car = nil
 
-    private
+            queue_lock.synchronize do
+              while waiting.empty?
+                cond_var.wait(queue_lock)
+              end
 
-    def first_in_waiting
-      waiting.shift
-    end
+              car = waiting.shift
+            end
 
-    def handle_unserved(car, message)
-      unserved << car
-      Logger.info(message)
+            report_lock.synchronize do
+              result = pump.fuel(car)
+              status = result.delete(:status)
+
+              report[status] ||= []
+              report[status] << result
+            end
+          end
+        end
+      end
     end
   end
 end
