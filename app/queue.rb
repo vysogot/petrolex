@@ -18,8 +18,8 @@ module Petrolex
       return unless station.open?
 
       queue_lock.synchronize do
-        Logger.info("#{car} is #{waiting.size.succ} in queue")
         waiting << car
+        Logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
       end
     end
@@ -44,8 +44,9 @@ module Petrolex
               car = waiting.shift
             end
 
+            result = pump.fuel(car)
+
             report_lock.synchronize do
-              result = pump.fuel(car)
               status = result.delete(:status)
 
               report[status] ||= []
