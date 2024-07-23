@@ -29,7 +29,7 @@ module Petrolex
     end
 
     def consume
-      station.pumps.each do |pump|
+      station.mounted_pumps.each do |pump|
         Thread.new do
           loop do
             break unless station.open?
@@ -37,9 +37,7 @@ module Petrolex
             car = nil
 
             queue_lock.synchronize do
-              while waiting.empty?
-                cond_var.wait(queue_lock)
-              end
+              cond_var.wait(queue_lock) while waiting.empty?
 
               car = waiting.shift
             end
@@ -53,13 +51,13 @@ module Petrolex
               report[status] << result
             end
 
-            File.open("/Users/jgodawa/Downloads/new/data.json", "w") do |f|
-                f.write [
-                  { "name": "reserve", "value": station.reserve },
-                  { "name": "cars in queue", "value": waiting.size },
-                  { "name": "cars fueled", "value": report[:full].size },
-                  { "name": "cars partial", "value": report[:partial] ? report[:partial].size : 0 },
-                  { "name": "cars none", "value": report[:none] ? report[:none].size : 0 }
+            File.open('/Users/jgodawa/Downloads/new/data.json', 'w') do |f|
+              f.write [
+                { "name": 'reserve', "value": station.reserve },
+                { "name": 'cars in queue', "value": waiting.size },
+                { "name": 'cars fueled', "value": report[:full]&.size || 0 },
+                { "name": 'cars partial', "value": report[:partial]&.size || 0 },
+                { "name": 'cars none', "value": report[:none]&.size || 0 }
               ].to_json
             end
           end

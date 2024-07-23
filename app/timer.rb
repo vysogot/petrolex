@@ -3,13 +3,13 @@
 module Petrolex
   # Syncs simulation time
   class Timer
-    attr_accessor :tick_step, :simulation_speed
+    attr_accessor :tick_step, :speed
     attr_reader :current_tick
 
     def initialize
       @current_tick = 0
       @tick_step = 1
-      @simulation_speed = 1
+      @speed = 1
     end
 
     @instance = new
@@ -36,7 +36,7 @@ module Petrolex
     end
 
     def tick_duration
-      1.0 / simulation_speed
+      1.0 / speed
     end
 
     def wait

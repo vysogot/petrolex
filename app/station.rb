@@ -5,14 +5,16 @@ module Petrolex
   class Station
     NoMoreFuel = Class.new(StandardError)
 
-    attr_reader :pumps, :reserve
+    attr_reader :mounted_pumps, :reserve
     attr_accessor :is_open
 
-    def initialize(reserve:)
+    def initialize(reserve:, pumps:)
       @reserve = reserve
       @reserve_lock = Mutex.new
       @is_open = false
-      @pumps = []
+      @mounted_pumps = []
+
+      pumps.each { |pump| mount_pump(pump) }
     end
 
     def open
@@ -27,16 +29,16 @@ module Petrolex
       Logger.info('Station closes')
     end
 
-    def add_pump(pump)
-      pump.id = "Pump#{pumps.size.succ}"
+    def mount_pump(pump)
+      pump.id = "Pump#{mounted_pumps.size.succ}"
       pump.station = self
 
-      pumps << pump
+      mounted_pumps << pump
     end
 
     def take_fuel(units)
       reserve_lock.synchronize do
-        after = self.reserve - units
+        after = reserve - units
         raise NoMoreFuel if after < 0
 
         self.reserve = after
