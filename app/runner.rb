@@ -5,14 +5,11 @@ module Petrolex
   class Runner
     def call
       Timer.configure do |timer|
-        timer.speed = 1000
+        timer.speed = 10000
         timer.tick_step = 1
       end
 
       simulation = Simulation.new
-      simulation.configure do |simulation|
-        simulation.cars_number = 20
-      end
 
       puts simulation.intro
 
@@ -21,6 +18,7 @@ module Petrolex
       Timer.instance.stop
 
       puts simulation.report
+      pp simulation.queue.report.sheet
     end
   end
 end

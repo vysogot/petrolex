@@ -7,12 +7,15 @@ module Petrolex
       @sheet = {}
     end
 
-    def call(state:, record:)
+    def call(state: nil, record:)
       lock.synchronize do
         status = record.delete(:status)
 
-        sheet[:reserve] = state[:reserve]
-        sheet[:waiting] = state[:waiting]
+        if state
+          sheet[:reserve] = state[:reserve]
+          sheet[:waiting] = state[:waiting]
+        end
+
         sheet[status] ||= []
         sheet[status] << record
       end

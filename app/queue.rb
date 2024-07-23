@@ -32,21 +32,26 @@ module Petrolex
       station.mounted_pumps.each do |pump|
         Thread.new do
           loop do
-            break unless station.open?
+            unless station.open?
+              report.call(record: { status: :unserved, value: waiting.size })
+              break
+            end
 
             car = nil
             reserve = nil
             waiting_size = nil
 
             queue_lock.synchronize do
-              cond_var.wait(queue_lock) while waiting.empty?
+              while waiting.empty?
+                cond_var.wait(queue_lock)
+              end
 
               car = waiting.shift
               reserve = station.reserve
               waiting_size = waiting.size
             end
 
-            state = { reserve:, waiting_size: }
+            state = { reserve:, waiting: waiting_size }
             record = pump.fuel(car)
             report.call(state:, record:)
           end

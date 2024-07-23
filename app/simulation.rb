@@ -5,14 +5,14 @@ module Petrolex
                   :station_closing_tick, :pumps_number_range, :pumps_speed_range
 
     def initialize
-      @ticks = 200
-      @cars_number = 10
+      @ticks = 20000
+      @cars_number = 1900
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
-      @cars_delay_range = (1..300)
-      @station_fuel_reserve = 100
-      @station_closing_tick = 200
-      @pumps_number_range = (1..5)
+      @cars_delay_range = (1..15000)
+      @station_fuel_reserve = 100000
+      @station_closing_tick = 20000
+      @pumps_number_range = (100..500)
       @pumps_speed_range = (1..5)
     end
 
@@ -103,7 +103,6 @@ module Petrolex
         \nResults:
         Cars served: #{queue.report.sheet[:full]&.size || 0}
         Fuel left in station: #{station.reserve} litres\n
-        Report: #{queue.report.sheet.inspect}
         Petrolex Station Simulator has ended.
       REPORT
     end
