@@ -2,16 +2,16 @@
 
 require_relative '../app/petrolex'
 
-SIMULATION_SPEED = 1000
-SIMULATION_TICKS = 500
+SIMULATION_SPEED = 100
+SIMULATION_TICKS = 5000
 SIMULATION_TICK_STEP = 1
 
-CARS_NUMBER = 10
+CARS_NUMBER = 290
 CARS_VOLUME_RANGE = (35..70)
 CARS_LEVEL_RANGE = (1...35)
 CARS_DELAY_RANGE = (1..300)
 
-STATION_FUEL_RESERVE = 500
+STATION_FUEL_RESERVE = 10000
 STATION_CLOSING_TICK = SIMULATION_TICKS
 
 PUMP_SLOW_FUELING_SPEED = 1 # seconds per litre
@@ -25,6 +25,8 @@ end
 pump1 = Petrolex::Pump.new(speed: PUMP_SLOW_FUELING_SPEED)
 pump2 = Petrolex::Pump.new(speed: PUMP_FAST_FUELING_SPEED)
 pump3 = Petrolex::Pump.new(speed: PUMP_FAST_FUELING_SPEED)
+pump4 = Petrolex::Pump.new(speed: PUMP_FAST_FUELING_SPEED)
+pump5 = Petrolex::Pump.new(speed: PUMP_FAST_FUELING_SPEED)
 station = Petrolex::Station.new(reserve: STATION_FUEL_RESERVE)
 queue = Petrolex::Queue.new(station:)
 
@@ -33,6 +35,17 @@ car_threads = []
 station.add_pump(pump1)
 station.add_pump(pump2)
 station.add_pump(pump3)
+station.add_pump(pump4)
+station.add_pump(pump5)
+
+File.open("/Users/jgodawa/Downloads/new/data.json", "w") do |f|
+  f.write [
+    { "name": "start reserve", "value": 5000 },
+    { "name": "reserve", "value": station.reserve },
+    { "name": "cars in queue", "value": 0 },
+    { "name": "cars fueled", "value": 0 },
+].to_json
+end
 
 station_thread = Thread.new do
   station.open

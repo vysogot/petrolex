@@ -52,6 +52,16 @@ module Petrolex
               report[status] ||= []
               report[status] << result
             end
+
+            File.open("/Users/jgodawa/Downloads/new/data.json", "w") do |f|
+                f.write [
+                  { "name": "reserve", "value": station.reserve },
+                  { "name": "cars in queue", "value": waiting.size },
+                  { "name": "cars fueled", "value": report[:full].size },
+                  { "name": "cars partial", "value": report[:partial] ? report[:partial].size : 0 },
+                  { "name": "cars none", "value": report[:none] ? report[:none].size : 0 }
+              ].to_json
+            end
           end
         end
       end
