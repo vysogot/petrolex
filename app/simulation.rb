@@ -101,9 +101,9 @@ module Petrolex
       # puts "Avg fueling time: #{avg_fuel_time.round(3)} seconds"
       <<~REPORT
         \nResults:
-        Cars served: #{queue.report[:full]&.size || 0}
-        Fuel left in station: #{station.reserve} litres\n\n
-        Report: #{queue.report.inspect}
+        Cars served: #{queue.report.sheet[:full]&.size || 0}
+        Fuel left in station: #{station.reserve} litres\n
+        Report: #{queue.report.sheet.inspect}
         Petrolex Station Simulator has ended.
       REPORT
     end

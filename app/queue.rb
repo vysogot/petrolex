@@ -10,8 +10,8 @@ module Petrolex
       @queue_lock = Mutex.new
       @report_lock = Mutex.new
       @cond_var = ConditionVariable.new
+      @report = Report.new
       @waiting = []
-      @report = {}
     end
 
     def push(car)
@@ -25,7 +25,7 @@ module Petrolex
     end
 
     def print_report
-      report
+      report.data
     end
 
     def consume
@@ -35,31 +35,20 @@ module Petrolex
             break unless station.open?
 
             car = nil
+            reserve = nil
+            waiting_size = nil
 
             queue_lock.synchronize do
               cond_var.wait(queue_lock) while waiting.empty?
 
               car = waiting.shift
+              reserve = station.reserve
+              waiting_size = waiting.size
             end
 
-            result = pump.fuel(car)
-
-            report_lock.synchronize do
-              status = result.delete(:status)
-
-              report[status] ||= []
-              report[status] << result
-            end
-
-            File.open('/Users/jgodawa/Downloads/new/data.json', 'w') do |f|
-              f.write [
-                { "name": 'reserve', "value": station.reserve },
-                { "name": 'cars in queue', "value": waiting.size },
-                { "name": 'cars fueled', "value": report[:full]&.size || 0 },
-                { "name": 'cars partial', "value": report[:partial]&.size || 0 },
-                { "name": 'cars none', "value": report[:none]&.size || 0 }
-              ].to_json
-            end
+            state = { reserve:, waiting_size: }
+            record = pump.fuel(car)
+            report.call(state:, record:)
           end
         end
       end
