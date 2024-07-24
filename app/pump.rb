@@ -5,14 +5,18 @@ module Petrolex
   class Pump
     UNIT = 1
 
-    attr_accessor :id, :station
+    attr_accessor :id, :station, :is_busy
     attr_reader :units, :speed
 
     def initialize(speed:)
       @speed = speed
+      @is_busy = false
     end
 
+    def busy? = is_busy
+
     def fuel(car)
+      self.is_busy = true
       Logger.info("#{id} pumping #{car}")
 
       before = Timer.instance.current_tick
@@ -37,6 +41,7 @@ module Petrolex
         fueling_time = after - before
         last_servings = station.open? ? '' : 'After close servings: '
         Logger.info("#{last_servings}#{id} pumped #{units_given} litres of fuel into #{car} in #{fueling_time} seconds")
+        self.is_busy = false
       end
 
       { status:, fueling_time:, units_wanted:, units_given: }

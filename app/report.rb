@@ -7,7 +7,7 @@ module Petrolex
       @sheet = {}
     end
 
-    def call(state: nil, record:)
+    def call(record:, state: nil)
       lock.synchronize do
         status = record.delete(:status)
 
@@ -21,6 +21,16 @@ module Petrolex
       end
 
       save_to_file
+    end
+
+    def fully_fueled = sheet[:full]&.size || 0
+    def partially_fueled = sheet[:partial]&.size || 0
+    def not_fueled = sheet[:none]&.size || 0
+    def reserve = sheet[:reserve]
+    def unserved = sheet[:unserved] && sheet[:unserved].first[:value] || 0
+
+    def fuel_given
+      [sheet[:full], sheet[:partial]].compact.flatten.sum { |record| record[:units_given] }
     end
 
     def data

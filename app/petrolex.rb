@@ -2,6 +2,7 @@
 
 require 'forwardable'
 require 'json'
+require 'securerandom'
 
 require_relative 'timer'
 require_relative 'logger'

@@ -4,8 +4,10 @@ module Petrolex
   # Runs a simulation
   class Runner
     def call
+      start_time = Time.now
+
       Timer.configure do |timer|
-        timer.speed = 10000
+        timer.speed = 10_000
         timer.tick_step = 1
       end
 
@@ -18,7 +20,10 @@ module Petrolex
       Timer.instance.stop
 
       puts simulation.report
-      pp simulation.queue.report.sheet
+
+      finish_time = Time.now
+
+      puts "Simulation took #{finish_time - start_time} seconds"
     end
   end
 end

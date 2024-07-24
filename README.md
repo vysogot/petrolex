@@ -129,6 +129,7 @@ Petrolex Station Simulator has ended.
 
 #### Issues
 
-* Report in unstructured and needs its own object
-* Report shows in runner before the last car gets finished
+* Report in unstructured and needs its own object, same with single records
 * Report needs aggregations
+* Report needs access to how many cars didn't reach
+* Report may have inaccurate data

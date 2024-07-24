@@ -26,7 +26,12 @@ module Petrolex
 
     def close
       self.is_open = false
-      Logger.info('Station closes')
+      message = done? ? '' : '... finishing cars being pumped'
+      Logger.info("Station closes#{message}")
+    end
+
+    def done?
+      !open? && mounted_pumps.none?(&:busy?)
     end
 
     def mount_pump(pump)
@@ -43,6 +48,10 @@ module Petrolex
 
         self.reserve = after
       end
+    end
+
+    def reserve_reading
+      reserve_lock.synchronize { reserve }
     end
 
     private
