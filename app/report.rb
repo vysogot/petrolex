@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Petrolex
   class Report
     attr_reader :sheet

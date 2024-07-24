@@ -41,7 +41,6 @@ module Petrolex
             end
 
             car = nil
-            reserve = nil
             waiting_size = nil
 
             queue_lock.synchronize do

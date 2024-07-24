@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 module Petrolex
   class Simulation
-    attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
-                  :cars_delay_interval_range, :station_fuel_reserve,
-                  :station_closing_tick, :pumps_number_range, :pumps_speed_range
+    Timer.configure do |timer|
+      timer.speed = 10_000
+      timer.tick_step = 1
+    end
 
     def initialize
       @cars_number = 100_000
@@ -19,28 +22,52 @@ module Petrolex
       yield(self)
     end
 
-    def station
-      @station ||= Station.new(reserve: station_fuel_reserve, pumps:)
+    def run
+      Timer.instance.start
+      threads.each(&:join)
+      Timer.instance.stop
     end
 
-    def pumps
-      @pumps ||= rand(pumps_number_range).times.map do
-        Pump.new(speed: rand(pumps_speed_range))
-      end
+    def intro
+      <<~INTRO
+        Petrolex Station Simulator has started.\n
+        Simulation speed: x#{Timer.instance.speed}
+        Closing tick: #{station_closing_tick}
+        Cars to arrive: #{cars_number}
+        Station fuel reserve: #{station.reserve}
+        Pumps fueling speeds: #{pumps_print}
+        \nTick | Message
+        --------------
+      INTRO
     end
 
-    def queue
-      @queue ||= Queue.new(station:)
+    def outro
+      <<~REPORT
+        \nResults:
+        Cars fully fueled: #{report.fully_fueled}
+        Cars partialy fueled: #{report.partially_fueled}
+        Cars not fueled due to lack of fuel: #{report.not_fueled}
+        Cars not served at all: #{report.unserved}\n
+        Fuel left in station: #{report.reserve} litres
+        Fuel pumped in cars: #{report.fuel_given} litres\n
+        Petrolex Station Simulator has ended.
+      REPORT
+      # Avg wait time: #{report.avg_wait_time}"
+      # Avg fueling time: #{report.avg_fueling_time}"
     end
 
-    def cars
-      @cars ||= cars_number.times.map do
-        plate = Plater.instance.request_plate
-        volume = rand(cars_volume_range)
-        level = rand(cars_level_range)
+    private
 
-        Car.new(plate:, volume:, level:)
-      end
+    attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
+                  :cars_delay_interval_range, :station_fuel_reserve,
+                  :station_closing_tick, :pumps_number_range, :pumps_speed_range
+
+    def threads
+      [
+        station_thread,
+        queue_thread,
+        spawner_thread
+      ].flatten
     end
 
     def station_thread
@@ -57,19 +84,39 @@ module Petrolex
       Thread.new { queue.consume }
     end
 
-    def threads
-      [
-        station_thread,
-        queue_thread,
-        spawner_thread
-      ].flatten
-    end
-
     def spawner_thread
       Thread.new do
         lazy_random_interval_enumerator.each do |car|
           queue.push(car)
         end
+      end
+    end
+
+    def station
+      @station ||= Station.new(reserve: station_fuel_reserve, pumps:)
+    end
+
+    def pumps
+      @pumps ||= rand(pumps_number_range).times.map do
+        Pump.new(speed: rand(pumps_speed_range))
+      end
+    end
+
+    def queue
+      @queue ||= Queue.new(station:)
+    end
+
+    def report
+      queue.report
+    end
+
+    def cars
+      @cars ||= cars_number.times.map do
+        plate = Plater.instance.request_plate
+        volume = rand(cars_volume_range)
+        level = rand(cars_level_range)
+
+        Car.new(plate:, volume:, level:)
       end
     end
 
@@ -85,40 +132,8 @@ module Petrolex
       end.lazy
     end
 
-    def intro
-      <<~INTRO
-        Petrolex Station Simulator has started.\n
-        Simulation speed: x#{Timer.instance.speed}
-        Closing tick: #{station_closing_tick}
-        Cars to arrive: #{cars_number}
-        Station fuel reserve: #{station.reserve}
-        Pumps fueling speeds: #{pumps_print}
-        \nTick | Message
-        --------------
-      INTRO
-    end
-
     def pumps_print
       pumps.map(&:speed).sort.join(', ')
-    end
-
-    def report
-      # avg_wait_time = station.waiting_times.sum / queue.fueled.size.to_f
-      # avg_fuel_time = station.fueling_times.sum / queue.fueled.size.to_f
-      # puts "Cars left in queue: #{queue.waiting.size}"
-      # puts "Cars left the station unserved: #{queue.unserved.size}\n\n"
-      # puts "Avg wait time: #{avg_wait_time.round(3)} seconds"
-      # puts "Avg fueling time: #{avg_fuel_time.round(3)} seconds"
-      <<~REPORT
-        \nResults:
-        Cars fully fueled: #{queue.report.fully_fueled}
-        Cars partialy fueled: #{queue.report.partially_fueled}
-        Cars not fueled due to lack of fuel: #{queue.report.not_fueled}
-        Cars not served at all: #{queue.report.unserved}\n
-        Fuel left in station: #{queue.report.reserve} litres
-        Fuel pumped in cars: #{queue.report.fuel_given} litres\n
-        Petrolex Station Simulator has ended.
-      REPORT
     end
   end
 end

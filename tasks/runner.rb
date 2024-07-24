@@ -2,4 +2,5 @@
 
 require_relative '../app/petrolex'
 
-Petrolex::Runner.new.call
+simulation = Petrolex::Simulation.new
+Petrolex::Runner.new.call(simulation:)

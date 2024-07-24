@@ -31,7 +31,7 @@ module Petrolex
           units_given += 1
           Timer.instance.pause_for(speed)
         end
-      rescue Station::NoMoreFuel => e
+      rescue Station::NoMoreFuel
         Logger.info("#{id} can't pump #{units_wanted} into #{car} as there is not enough fuel")
         status = units_given.positive? ? :partial : :none
       else

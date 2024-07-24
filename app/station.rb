@@ -44,7 +44,7 @@ module Petrolex
     def take_fuel(units)
       reserve_lock.synchronize do
         after = reserve - units
-        raise NoMoreFuel if after < 0
+        raise NoMoreFuel if after.negative?
 
         self.reserve = after
       end
