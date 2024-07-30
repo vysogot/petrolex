@@ -3,7 +3,7 @@
 module Petrolex
   class Simulation
     Timer.configure do |timer|
-      timer.speed = 10_000
+      timer.speed = 65_536
       timer.tick_step = 1
     end
 
@@ -11,10 +11,10 @@ module Petrolex
       @cars_number = 100_000
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
-      @cars_delay_interval_range = (0..1)
-      @station_fuel_reserve = 10_000_000
-      @station_closing_tick = 100_000
-      @pumps_number_range = (40..50)
+      @cars_delay_interval_range = (0..2)
+      @station_fuel_reserve = 2_000_000
+      @station_closing_tick = 300_000
+      @pumps_number_range = (30..50)
       @pumps_speed_range = (1..5)
     end
 
@@ -110,21 +110,20 @@ module Petrolex
       queue.report
     end
 
-    def cars
-      @cars ||= cars_number.times.map do
-        plate = Plater.instance.request_plate
-        volume = rand(cars_volume_range)
-        level = rand(cars_level_range)
+    def build_car
+      plate = Plater.instance.request_plate
+      volume = rand(cars_volume_range)
+      level = rand(cars_level_range)
 
-        Car.new(plate:, volume:, level:)
-      end
+      Car.new(plate:, volume:, level:)
     end
 
     def lazy_random_interval_enumerator
       Enumerator.new do |yielder|
-        cars.each do |car|
+        cars_number.times do
           break if station.done?
 
+          car = build_car
           delay = SecureRandom.random_number(cars_delay_interval_range)
           Timer.instance.pause_for(delay)
           yielder.yield(car)

@@ -6,6 +6,12 @@ module Petrolex
     JUSTIFY_UP_TO = 6
     FILL_UP_CHAR = '0'
 
+    attr_reader :lock
+
+    def initialize
+      @lock = Mutex.new
+    end
+
     @instance = new
 
     class << self
@@ -16,7 +22,9 @@ module Petrolex
     end
 
     def info(message)
-      puts "#{current_tick}: #{message}"
+      lock.synchronize do
+        puts "#{current_tick}: #{message}"
+      end
     end
 
     private
