@@ -3,18 +3,18 @@
 module Petrolex
   class Simulation
     Timer.configure do |timer|
-      timer.speed = 65_536
+      timer.speed = 100
       timer.tick_step = 1
     end
 
     def initialize
-      @cars_number = 100_000
+      @cars_number = 10
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
       @cars_delay_interval_range = (0..2)
-      @station_fuel_reserve = 2_000_000
-      @station_closing_tick = 300_000
-      @pumps_number_range = (30..50)
+      @station_fuel_reserve = 2_000
+      @station_closing_tick = 300
+      @pumps_number_range = (1..3)
       @pumps_speed_range = (1..5)
     end
 
@@ -66,7 +66,8 @@ module Petrolex
       [
         station_thread,
         queue_thread,
-        spawner_thread
+        spawner_thread,
+        report_saver_thread
       ].flatten
     end
 
@@ -92,8 +93,21 @@ module Petrolex
       end
     end
 
+    def report_saver_thread
+      Thread.new do
+        report_saver = ReportSaver.new
+
+        loop do
+          report_saver.call(stats: report.data, elements: report.elements)
+          break if station.done?
+
+          sleep(1)
+        end
+      end
+    end
+
     def station
-      @station ||= Station.new(reserve: station_fuel_reserve, pumps:)
+      @station ||= Station.new(name: 'Station1', reserve: station_fuel_reserve, pumps:)
     end
 
     def pumps

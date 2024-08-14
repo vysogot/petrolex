@@ -2,11 +2,13 @@
 
 module Petrolex
   class Report
-    attr_reader :sheet
+    attr_reader :sheet, :nodes, :links
 
     def initialize
       @lock = Mutex.new
       @sheet = {}
+      @nodes = []
+      @links = []
     end
 
     def call(record:, state: nil)
@@ -21,8 +23,6 @@ module Petrolex
         sheet[status] ||= []
         sheet[status] << record
       end
-
-      save_to_file
     end
 
     def fully_fueled = sheet[:full]&.size || 0
@@ -38,21 +38,40 @@ module Petrolex
     def data
       [
         { name: 'reserve', value: sheet[:reserve] },
+        { name: 'fuel given', value: fuel_given },
         { name: 'cars in queue', value: sheet[:waiting] },
-        { name: 'cars fueled', value: sheet[:full]&.size || 0 },
-        { name: 'cars partial', value: sheet[:partial]&.size || 0 },
-        { name: 'cars none', value: sheet[:none]&.size || 0 }
-      ].flatten
+        { name: 'cars fueled', value: fully_fueled },
+        { name: 'cars partial', value: partially_fueled },
+        { name: 'cars none', value: not_fueled },
+        { name: 'cars unserved', value: unserved },
+      ]
+    end
+
+    def add_node(node, group)
+      nodes << { id: node.to_s, group: group }
+    end
+
+    def add_link(source, target)
+      links << { source: source.to_s, target: target.to_s, value: 1 }
+    end
+
+    def remove_node(source)
+      nodes.delete_if { |node| node[:id] == source.to_s }
+    end
+
+    def remove_link(source, target)
+      links.delete_if { |node| node[:source] == source.to_s && node[:target] == target.to_s }
+    end
+
+    def elements
+      {
+        nodes: nodes,
+        links: links
+      }
     end
 
     private
 
     attr_reader :lock
-
-    def save_to_file
-      File.open('/Users/jgodawa/Downloads/new/data.json', 'w') do |file|
-        file.write(data.to_json)
-      end
-    end
   end
 end

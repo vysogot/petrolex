@@ -5,10 +5,11 @@ module Petrolex
   class Station
     NoMoreFuel = Class.new(StandardError)
 
-    attr_reader :mounted_pumps, :reserve
+    attr_reader :mounted_pumps, :reserve, :name
     attr_accessor :is_open
 
-    def initialize(reserve:, pumps:)
+    def initialize(name:, reserve:, pumps:)
+      @name = name
       @reserve = reserve
       @reserve_lock = Mutex.new
       @is_open = false
@@ -16,6 +17,8 @@ module Petrolex
 
       pumps.each { |pump| mount_pump(pump) }
     end
+
+    def to_s = name
 
     def open
       self.is_open = true
