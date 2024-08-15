@@ -13,6 +13,7 @@ module Petrolex
       finish_time = Time.now
 
       puts "Runner took #{finish_time - start_time} seconds"
+      Petrolex::CliPainter.new.call
     end
   end
 end

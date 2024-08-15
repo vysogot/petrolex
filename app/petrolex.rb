@@ -3,6 +3,8 @@
 require 'forwardable'
 require 'json'
 require 'securerandom'
+require 'io/console'
+require 'async'
 
 require_relative 'timer'
 require_relative 'logger'
@@ -16,3 +18,4 @@ require_relative 'simulation'
 require_relative 'report'
 require_relative 'report_saver'
 require_relative 'graph'
+require_relative 'cli_painter'
