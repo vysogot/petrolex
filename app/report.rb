@@ -6,68 +6,62 @@ module Petrolex
 
     def initialize
       @lock = Mutex.new
-      @sheet = {}
-      @nodes = []
-      @links = []
+      @sheet = { full: [], partial: [], none: [], waiting: 0, unserved: 0}
     end
 
-    def call(record:, state: nil)
+    def increase_waiting
+      sheet[:waiting] += 1
+    end
+
+    def decrease_waiting
+      sheet[:waiting] -= 1
+    end
+
+    def update_unserved(count:)
+      sheet[:unserved] = count
+    end
+
+    def update_reserve(count:)
+      sheet[:reserve] = count
+    end
+
+    def add_pumping(record:)
       lock.synchronize do
         status = record.delete(:status)
-
-        if state
-          sheet[:reserve] = state[:reserve]
-          sheet[:waiting] = state[:waiting]
-        end
-
-        sheet[status] ||= []
         sheet[status] << record
       end
     end
 
-    def fully_fueled = sheet[:full]&.size || 0
-    def partially_fueled = sheet[:partial]&.size || 0
-    def not_fueled = sheet[:none]&.size || 0
+    def full = sheet[:full]
+    def partial = sheet[:partial]
+    def none = sheet[:none]
+    def unserved_count = sheet[:unserved]
+    def waiting_count = sheet[:waiting]
     def reserve = sheet[:reserve]
-    def unserved = sheet[:unserved] && sheet[:unserved].first[:value] || 0
+
+    def full_count = full.size
+    def partial_count = partial.size
+    def none_count = none.size
+    def visitors_count = [full_count, partial_count, none_count].sum
+
+    def served
+      [full, partial].flatten
+    end
 
     def fuel_given
-      [sheet[:full], sheet[:partial]].compact.flatten.sum { |record| record[:units_given] }
+      served.sum { |record| record[:units_given] }
     end
 
-    def data
-      [
-        { name: 'reserve', value: sheet[:reserve] },
-        { name: 'fuel given', value: fuel_given },
-        { name: 'cars in queue', value: sheet[:waiting] },
-        { name: 'cars fueled', value: fully_fueled },
-        { name: 'cars partial', value: partially_fueled },
-        { name: 'cars none', value: not_fueled },
-        { name: 'cars unserved', value: unserved },
-      ]
+    def total_fueling_time
+      served.sum { |record| record[:fueling_time] }
     end
 
-    def add_node(node, group)
-      nodes << { id: node.to_s, group: group }
+    def avg_fueling_time
+      (total_fueling_time.to_f / served.size).round(2)
     end
 
-    def add_link(source, target)
-      links << { source: source.to_s, target: target.to_s, value: 1 }
-    end
-
-    def remove_node(source)
-      nodes.delete_if { |node| node[:id] == source.to_s }
-    end
-
-    def remove_link(source, target)
-      links.delete_if { |node| node[:source] == source.to_s && node[:target] == target.to_s }
-    end
-
-    def elements
-      {
-        nodes: nodes,
-        links: links
-      }
+    def avg_fueling_speed
+      (total_fueling_time.to_f / fuel_given).round(2)
     end
 
     private

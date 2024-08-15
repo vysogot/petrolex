@@ -3,7 +3,7 @@
 module Petrolex
   class Simulation
     Timer.configure do |timer|
-      timer.speed = 100
+      timer.speed = 1000
       timer.tick_step = 1
     end
 
@@ -44,16 +44,17 @@ module Petrolex
     def outro
       <<~REPORT
         \nResults:
-        Cars fully fueled: #{report.fully_fueled}
-        Cars partialy fueled: #{report.partially_fueled}
-        Cars not fueled due to lack of fuel: #{report.not_fueled}
-        Cars not served at all: #{report.unserved}\n
+        Cars fully fueled: #{report.full_count}
+        Cars partialy fueled: #{report.partial_count}
+        Cars not fueled due to lack of fuel: #{report.none_count}
+        Cars not served at all: #{report.unserved_count}\n
         Fuel left in station: #{report.reserve} litres
         Fuel pumped in cars: #{report.fuel_given} litres\n
+        Avg fueling time: #{report.avg_fueling_time} seconds
+        Avg fueling speed: #{report.avg_fueling_speed} litres per second\n
         Petrolex Station Simulator has ended.
       REPORT
       # Avg wait time: #{report.avg_wait_time}"
-      # Avg fueling time: #{report.avg_fueling_time}"
     end
 
     private
@@ -96,9 +97,13 @@ module Petrolex
     def report_saver_thread
       Thread.new do
         report_saver = ReportSaver.new
+        graph = Graph.new(report:)
 
         loop do
-          report_saver.call(stats: report.data, elements: report.elements)
+          stats = graph.columns
+          elements = graph.elements
+
+          report_saver.call(stats:, elements:)
           break if station.done?
 
           sleep(1)

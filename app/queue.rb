@@ -11,8 +11,6 @@ module Petrolex
       @cond_var = ConditionVariable.new
       @report = Report.new
       @waiting = []
-
-      report.add_node(station, 1)
     end
 
     def push(car)
@@ -20,20 +18,18 @@ module Petrolex
 
       queue_lock.synchronize do
         waiting << car
-        report.add_node(car, 2)
+        report.increase_waiting
         Logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
       end
     end
 
     def consume
-      final_record_given = false
-
       station.mounted_pumps.each do |pump|
         Thread.new do
           loop do
             unless station.open?
-              report.call(record: { status: :unserved, value: waiting.size }) unless final_record_given
+              report.update_unserved(count: waiting.size)
 
               break
             end
@@ -45,15 +41,13 @@ module Petrolex
               cond_var.wait(queue_lock) while waiting.empty?
 
               car = waiting.shift
-              report.add_link(car, station)
+              report.decrease_waiting
               waiting_size = waiting.size
             end
 
             record = pump.fuel(car)
-            state = { reserve: station.reserve_reading, waiting: waiting_size }
-            report.call(state:, record:)
-            report.remove_node(car)
-            report.remove_link(car, station)
+            report.add_pumping(record:)
+            report.update_reserve(count: station.reserve_reading)
           end
         end
       end
