@@ -5,11 +5,11 @@ module Petrolex
   class Queue
     attr_reader :station, :queue_lock, :waiting, :cond_var, :report
 
-    def initialize(station:)
+    def initialize(station:, report:)
       @station = station
+      @report = report
       @queue_lock = Mutex.new
       @cond_var = ConditionVariable.new
-      @report = Report.new
       @waiting = []
     end
 
@@ -17,8 +17,7 @@ module Petrolex
       return unless station.open?
 
       queue_lock.synchronize do
-        waiting << [car, Timer.instance.current_tick]
-        report.increase_waiting
+        add_car_to_queue(car)
         Logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
       end
@@ -28,33 +27,46 @@ module Petrolex
       station.mounted_pumps.each do |pump|
         Thread.new do
           loop do
-            unless station.open?
-              report.update_unserved(count: waiting.size)
+            break unless continue_consuming?
 
-              break
-            end
-
-            car = nil
-            waiting_size = nil
-            waiting_since = nil
-            waiting_time = nil
-
-            queue_lock.synchronize do
-              cond_var.wait(queue_lock) while waiting.empty?
-
-              car, waiting_since = waiting.shift
-              waiting_time = Timer.instance.current_tick - waiting_since
-              report.decrease_waiting
-              waiting_size = waiting.size
-            end
-
-            record = pump.fuel(car)
-            record[:waiting_time] = waiting_time
-            report.add_pumping(record:)
-            report.update_reserve(count: station.reserve_reading)
+            car, waiting_time = fetch_next_car_from_queue
+            process_fueling(pump, car, waiting_time)
           end
         end
       end
+    end
+
+    private
+
+    def add_car_to_queue(car)
+      waiting << [car, Timer.instance.current_tick]
+      report.increase_waiting
+    end
+
+    def continue_consuming?
+      return true if station.open?
+
+      report.update_unserved(count: waiting.size)
+      false
+    end
+
+    def fetch_next_car_from_queue
+      queue_lock.synchronize do
+        cond_var.wait(queue_lock) while waiting.empty?
+
+        car, waiting_since = waiting.shift
+        report.decrease_waiting
+        waiting_time = Timer.instance.current_tick - waiting_since
+
+        [car, waiting_time]
+      end
+    end
+
+    def process_fueling(pump, car, waiting_time)
+      record = pump.fuel(car)
+      record[:waiting_time] = waiting_time
+      report.add_pumping(record:)
+      report.update_reserve(count: station.reserve_reading)
     end
   end
 end

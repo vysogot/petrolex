@@ -122,11 +122,11 @@ module Petrolex
     end
 
     def queue
-      @queue ||= Queue.new(station:)
+      @queue ||= Queue.new(station:, report:)
     end
 
     def report
-      queue.report
+      @report ||= Report.new
     end
 
     def build_car
