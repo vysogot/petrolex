@@ -87,7 +87,7 @@ module Petrolex
 
     def spawner_thread
       Thread.new do
-        lazy_random_interval_enumerator.each do |car|
+        random_interval_enumerator.each do |car|
           queue.push(car)
         end
       end
@@ -132,17 +132,16 @@ module Petrolex
       Car.new(plate:, volume:, level:)
     end
 
-    def lazy_random_interval_enumerator
+    def random_interval_enumerator
       Enumerator.new do |yielder|
         cars_number.times do
           break if station.done?
 
-          car = build_car
           delay = SecureRandom.random_number(cars_delay_interval_range)
           Timer.instance.pause_for(delay)
-          yielder.yield(car)
+          yielder.yield(build_car)
         end
-      end.lazy
+      end
     end
 
     def pumps_print
