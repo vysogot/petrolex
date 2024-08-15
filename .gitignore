@@ -3,3 +3,4 @@ vendor/
 coverage/
 .bundle/
 *.DS_Store
+frontend/*.json
