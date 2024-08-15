@@ -50,11 +50,11 @@ module Petrolex
         Cars not served at all: #{report.unserved_count}\n
         Fuel left in station: #{report.reserve} litres
         Fuel pumped in cars: #{report.fuel_given} litres\n
+        Avg waiting time: #{report.avg_waiting_time} seconds
         Avg fueling time: #{report.avg_fueling_time} seconds
         Avg fueling speed: #{report.avg_fueling_speed} litres per second\n
         Petrolex Station Simulator has ended.
       REPORT
-      # Avg wait time: #{report.avg_wait_time}"
     end
 
     private

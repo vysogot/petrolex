@@ -17,7 +17,7 @@ module Petrolex
       return unless station.open?
 
       queue_lock.synchronize do
-        waiting << car
+        waiting << [car, Timer.instance.current_tick]
         report.increase_waiting
         Logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
@@ -36,16 +36,20 @@ module Petrolex
 
             car = nil
             waiting_size = nil
+            waiting_since = nil
+            waiting_time = nil
 
             queue_lock.synchronize do
               cond_var.wait(queue_lock) while waiting.empty?
 
-              car = waiting.shift
+              car, waiting_since = waiting.shift
+              waiting_time = Timer.instance.current_tick - waiting_since
               report.decrease_waiting
               waiting_size = waiting.size
             end
 
             record = pump.fuel(car)
+            record[:waiting_time] = waiting_time
             report.add_pumping(record:)
             report.update_reserve(count: station.reserve_reading)
           end

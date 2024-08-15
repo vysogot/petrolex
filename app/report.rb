@@ -48,6 +48,10 @@ module Petrolex
       [full, partial].flatten
     end
 
+    def all
+      served + none
+    end
+
     def fuel_given
       served.sum { |record| record[:units_given] }
     end
@@ -56,12 +60,20 @@ module Petrolex
       served.sum { |record| record[:fueling_time] }
     end
 
+    def total_waiting_time
+      served.sum { |record| record[:waiting_time] }
+    end
+
     def avg_fueling_time
       (total_fueling_time.to_f / served.size).round(2)
     end
 
     def avg_fueling_speed
       (total_fueling_time.to_f / fuel_given).round(2)
+    end
+
+    def avg_waiting_time
+      (total_waiting_time.to_f / all.size).round(2)
     end
 
     private
