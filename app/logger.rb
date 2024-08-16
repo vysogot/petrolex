@@ -23,6 +23,8 @@ module Petrolex
     end
 
     def print(message)
+      return if silent
+
       puts colorize(message)
     end
 
