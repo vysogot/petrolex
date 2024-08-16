@@ -5,10 +5,12 @@ module Petrolex
   class Station
     NoMoreFuel = Class.new(StandardError)
 
-    attr_reader :mounted_pumps, :reserve, :name
+    attr_reader :mounted_pumps, :reserve, :name, :timer, :logger
     attr_accessor :is_open
 
-    def initialize(name:, reserve:, pumps:)
+    def initialize(timer:, logger:, name:, reserve:, pumps:)
+      @timer = timer
+      @logger = logger
       @name = name
       @reserve = reserve
       @reserve_lock = Mutex.new
@@ -22,7 +24,7 @@ module Petrolex
 
     def open
       self.is_open = true
-      Logger.info('Station opens')
+      logger.info('Station opens')
     end
 
     def open? = is_open
@@ -30,7 +32,7 @@ module Petrolex
     def close
       self.is_open = false
       message = done? ? '' : '... finishing cars being pumped'
-      Logger.info("Station closes#{message}")
+      logger.info("Station closes#{message}")
     end
 
     def done?

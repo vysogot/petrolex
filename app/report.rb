@@ -6,7 +6,7 @@ module Petrolex
 
     def initialize
       @lock = Mutex.new
-      @sheet = { full: [], partial: [], none: [], waiting: 0, unserved: 0}
+      @sheet = { full: [], partial: [], none: [], waiting: 0, unserved: 0 }
     end
 
     def increase_waiting

@@ -18,7 +18,7 @@ module Petrolex
 
       queue_lock.synchronize do
         add_car_to_queue(car)
-        Logger.info("#{car} is #{waiting.size} in queue")
+        logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
       end
     end
@@ -38,8 +38,11 @@ module Petrolex
 
     private
 
+    def timer = station.timer
+    def logger = station.logger
+
     def add_car_to_queue(car)
-      waiting << [car, Timer.instance.current_tick]
+      waiting << [car, timer.current_tick]
       report.increase_waiting
     end
 
@@ -56,7 +59,7 @@ module Petrolex
 
         car, waiting_since = waiting.shift
         report.decrease_waiting
-        waiting_time = Timer.instance.current_tick - waiting_since
+        waiting_time = timer.current_tick - waiting_since
 
         [car, waiting_time]
       end

@@ -8,10 +8,6 @@ require 'minitest/autorun'
 require 'pry'
 require 'pry-nav'
 
-Petrolex::Timer.configure do |timer|
-  timer.speed = 10_000
-end
-
 module QuietLogger
   def run
     Petrolex::Logger.stub(:info, nil) { super }

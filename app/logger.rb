@@ -5,32 +5,37 @@ module Petrolex
   class Logger
     JUSTIFY_UP_TO = 6
     FILL_UP_CHAR = '0'
+    COLORS = { red: 31, green: 32, yellow: 33, none: 0 }
 
-    attr_reader :lock
-
-    def initialize
+    def initialize(timer:, silent:, color: :none)
+      @timer = timer
+      @silent = silent
+      @color = color
       @lock = Mutex.new
     end
 
-    @instance = new
+    def info(message)
+      return if silent
 
-    class << self
-      extend Forwardable
-      attr_reader :instance
-
-      def_delegators :instance, :info
+      lock.synchronize do
+        puts colorize("#{current_tick}: #{message}")
+      end
     end
 
-    def info(message)
-      lock.synchronize do
-        puts "#{current_tick}: #{message}"
-      end
+    def print(message)
+      puts colorize(message)
     end
 
     private
 
+    attr_reader :lock, :silent, :timer, :color
+
+    def colorize(message)
+      "\e[#{COLORS[color]}m#{message}\e[0m"
+    end
+
     def current_tick
-      Timer.instance.current_tick.to_s.rjust(JUSTIFY_UP_TO, FILL_UP_CHAR)
+      timer.current_tick.to_s.rjust(JUSTIFY_UP_TO, FILL_UP_CHAR)
     end
   end
 end

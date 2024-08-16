@@ -7,9 +7,11 @@ module Petrolex
     include SerialFaker
 
     it 'returns right message' do
-      Timer.instance.stub :current_tick, 15 do
+      logger = Logger.new
+
+      logger.stub :current_tick, 15 do
         output = catch_output do
-          Logger.info('hello')
+          logger.info('hello')
         end
 
         assert_equal '000015: hello', output.chomp

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Petrolex
-  # Fuels at the Station
-  class CliPainter
+  # Draws the simulation in console
+  class AsciiArt
     attr_reader :width, :height, :grid,
-      :street_top, :street_bottom, :middle_line
+                :street_top, :street_bottom, :middle_line
 
     def initialize(width: 84, height: 42)
       @width = width
@@ -66,7 +66,8 @@ module Petrolex
     end
 
     def animate
-      x, y = street_top - 1, width - 2
+      x = street_top - 1
+      y = width - 2
 
       loop do
         update_grid(x, y, "\u{1F695}")
@@ -84,9 +85,7 @@ module Petrolex
     def update_coordinates(x, y)
       y -= 1
 
-      if y < 1
-        y = width - 2
-      end
+      y = width - 2 if y < 1
 
       [x, y]
     end

@@ -2,12 +2,10 @@
 
 module Petrolex
   class Simulation
-    Timer.configure do |timer|
-      timer.speed = 1000
-      timer.tick_step = 1
-    end
+    def initialize(timer:, logger:)
+      @timer = timer
+      @logger = logger
 
-    def initialize
       @cars_number = 10
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
@@ -23,15 +21,21 @@ module Petrolex
     end
 
     def run
-      Timer.instance.start
+      start_time = clock_monotonic
+      logger.print intro
+      timer.start
       threads.each(&:join)
-      Timer.instance.stop
+      timer.stop
+      logger.print outro
+      finish_time = clock_monotonic
+
+      logger.print "Simulation took #{(finish_time - start_time).round(6)} seconds"
     end
 
     def intro
       <<~INTRO
         Petrolex Station Simulator has started.\n
-        Simulation speed: x#{Timer.instance.speed}
+        Simulation speed: x#{timer.speed}
         Closing tick: #{station_closing_tick}
         Cars to arrive: #{cars_number}
         Station fuel reserve: #{station.reserve}
@@ -62,6 +66,7 @@ module Petrolex
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve,
                   :station_closing_tick, :pumps_number_range, :pumps_speed_range
+    attr_reader :logger, :timer
 
     def threads
       [
@@ -75,10 +80,10 @@ module Petrolex
     def station_thread
       Thread.new do
         station.open
-        Timer.instance.pause_until(station_closing_tick)
+        timer.pause_until(station_closing_tick)
         station.close
 
-        Timer.instance.pause_for(1) until station.done?
+        timer.pause_for(1) until station.done?
       end
     end
 
@@ -112,7 +117,13 @@ module Petrolex
     end
 
     def station
-      @station ||= Station.new(name: 'Station1', reserve: station_fuel_reserve, pumps:)
+      @station ||= Station.new(
+        timer:,
+        logger:,
+        name: 'Station1',
+        reserve: station_fuel_reserve,
+        pumps:
+      )
     end
 
     def pumps
@@ -143,7 +154,7 @@ module Petrolex
           break if station.done?
 
           delay = SecureRandom.random_number(cars_delay_interval_range)
-          Timer.instance.pause_for(delay)
+          timer.pause_for(delay)
           yielder.yield(build_car)
         end
       end
@@ -151,6 +162,10 @@ module Petrolex
 
     def pumps_print
       pumps.map(&:speed).sort.join(', ')
+    end
+
+    def clock_monotonic
+      Process.clock_gettime(Process::CLOCK_MONOTONIC)
     end
   end
 end

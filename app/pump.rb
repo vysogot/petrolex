@@ -18,12 +18,12 @@ module Petrolex
     def fuel(car)
       prepare_for_fueling(car)
 
-      start = Timer.instance.current_tick
+      start = timer.current_tick
       units_wanted = car.want.dup
       units_given = perform_fueling(car, units_wanted)
       status = determine_status(units_given, units_wanted)
 
-      finish = Timer.instance.current_tick
+      finish = timer.current_tick
       fueling_time = finish - start
 
       finalize_fueling(car, units_given, fueling_time)
@@ -33,9 +33,12 @@ module Petrolex
 
     private
 
+    def timer = station.timer
+    def logger = station.logger
+
     def prepare_for_fueling(car)
       self.is_busy = true
-      Logger.info("#{id} pumping #{car}")
+      logger.info("#{id} pumping #{car}")
     end
 
     def perform_fueling(car, units_wanted)
@@ -46,10 +49,10 @@ module Petrolex
           station.take_fuel(UNIT)
           car.fuel(UNIT)
           units_given += UNIT
-          Timer.instance.pause_for(speed)
+          timer.pause_for(speed)
         end
       rescue Station::NoMoreFuel
-        Logger.info("#{id} can't pump #{units_wanted} into #{car} as there is not enough fuel")
+        logger.info("#{id} can't pump #{units_wanted} into #{car} as there is not enough fuel")
       end
 
       units_given
@@ -63,7 +66,7 @@ module Petrolex
 
     def finalize_fueling(car, units_given, fueling_time)
       last_servings = station.open? ? '' : 'After close servings: '
-      Logger.info("#{last_servings}#{id} pumped #{units_given} litres " \
+      logger.info("#{last_servings}#{id} pumped #{units_given} litres " \
         "of fuel into #{car} in #{fueling_time} seconds")
       self.is_busy = false
     end

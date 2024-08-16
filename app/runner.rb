@@ -3,17 +3,22 @@
 module Petrolex
   # Runs a simulation
   class Runner
-    def call(simulation:)
-      start_time = Time.now
-
-      puts simulation.intro
-      simulation.run
-      puts simulation.outro
-
-      finish_time = Time.now
-
-      puts "Runner took #{finish_time - start_time} seconds"
-      Petrolex::CliPainter.new.call
+    def initialize(simulations:, ascii_art:)
+      @simulations = simulations
+      @ascii_art = ascii_art
     end
+
+    def call
+      Async do |task|
+        simulations.each do |simulation|
+          task.async { AsciiArt.new.call } if ascii_art
+          task.async { simulation.run }
+        end
+      end
+    end
+
+    private
+
+    attr_reader :simulations, :ascii_art
   end
 end
