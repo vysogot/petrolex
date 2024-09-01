@@ -43,13 +43,18 @@ module Petrolex
 
     def add_car_to_queue(car)
       waiting << [car, timer.current_tick]
-      report.increase_waiting
+      record = { status: :waiting, car: }
+      report.for(station:).add_record(record:)
     end
 
     def continue_consuming?
       return true if station.open?
 
-      report.update_unserved(count: waiting.size)
+      waiting.each do |car, _waiting_time|
+        record = { status: :unserved, car: }
+        report.for(station:).add_record(record:)
+      end
+
       false
     end
 
@@ -58,7 +63,8 @@ module Petrolex
         cond_var.wait(queue_lock) while waiting.empty?
 
         car, waiting_since = waiting.shift
-        report.decrease_waiting
+        record = { status: :waiting, car: }
+        report.for(station:).remove_record(record:)
         waiting_time = timer.current_tick - waiting_since
 
         [car, waiting_time]
@@ -66,10 +72,15 @@ module Petrolex
     end
 
     def process_fueling(pump, car, waiting_time)
+      pre_record = { status: :being_served, car: }
+      report.for(station:).add_record(record: pre_record.dup)
+
       record = pump.fuel(car)
+
       record[:waiting_time] = waiting_time
-      report.add_pumping(record:)
-      report.update_reserve(count: station.reserve_reading)
+      report.for(station:).add_record(record:)
+      report.for(station:).remove_record(record: pre_record)
+      report.for(station:).update_reserve(count: station.reserve_reading)
     end
   end
 end

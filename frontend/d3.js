@@ -1,160 +1,99 @@
-// Sample data
-const initialData = {
-  nodes: [
-    { id: "A", group: 1 },
-    { id: "B", group: 2 },
-    { id: "C", group: 2 },
-    { id: "D", group: 2 },
-    { id: "E", group: 2 },
-  ],
-  links: [
-    { source: "B", target: "A", value: 2 },
-    { source: "C", target: "A", value: 2 },
-    { source: "D", target: "A", value: 2 },
-    { source: "E", target: "A", value: 2 },
-  ],
-};
+function createChart(data) {
+  const width = 1400;
+  const height = 700;
 
-// Specify the dimensions of the chart.
-const width = 928;
-const height = 680;
+  const colorMapping = {
+    "Served": "#4CAF50",      // Green
+    "Being served": "#FF9800", // Orange
+    // Add more mappings as needed
+  };
 
-// Specify the color scale.
-const color = d3.scaleOrdinal(d3.schemeCategory10);
+  const color = d3.scaleLinear()
+    .domain([0, 5])
+    .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
+    .interpolate(d3.interpolateHcl);
 
-// Declare links and nodes with let so they can be reassigned
-let links = initialData.links.map((d) => ({ ...d }));
-let nodes = initialData.nodes.map((d) => ({ ...d }));
+  const pack = data => d3.pack()
+    .size([width, height])
+    .padding(3)
+    (d3.hierarchy(data)
+      .sum(d => d.value)
+      .sort((a, b) => b.value - a.value));
+  let root = pack(data);
 
-// Create a simulation with several forces.
-const simulation = d3
-  .forceSimulation(nodes)
-  .force(
-    "link",
-    d3
-      .forceLink(links)
-      .id((d) => d.id)
-      .strength(0)
-  )
-  .force("charge", d3.forceManyBody().strength(0))
-  .force("x", d3.forceX().strength(0))
-  .force("y", d3.forceY().strength(0));
+  const svg = d3.create("svg")
+    .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
+    .attr("width", width)
+    .attr("height", height)
+    .attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -14px; background: ${color(0)}; cursor: pointer;`);
 
-// Create the SVG container.
-const svg = d3
-  .select("body")
-  .append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .attr("viewBox", [-width / 2, -height / 2, width, height])
-  .attr("style", "max-width: 100%; height: auto;");
+  const node = svg.append("g")
+    .selectAll("circle")
+    .data(root.descendants().slice(1))
+    .join("circle")
+    .attr("fill", d => colorMapping[d.data.name] || (d.children ? color(d.depth) : "white")) // Use the mapping or fallback
+    .attr("pointer-events", d => !d.children ? "none" : null)
+    .on("mouseover", function() { d3.select(this).attr("stroke", "#000"); })
+    .on("mouseout", function() { d3.select(this).attr("stroke", null); })
+    .on("click", (event, d) => focus !== d && (zoom(event, d), event.stopPropagation()));
 
-// Add a line for each link, and a circle for each node.
-let link = svg
-  .append("g")
-  .attr("stroke", "#999")
-  .attr("stroke-opacity", 0.6)
-  .selectAll("line")
-  .data(links)
-  .join("line")
-  .attr("stroke-width", (d) => Math.sqrt(d.value));
+  const label = svg.append("g")
+    .style("font", "10px sans-serif")
+    .attr("pointer-events", "none")
+    .attr("text-anchor", "middle")
+    .selectAll("text")
+    .data(root.descendants())
+    .join("text")
+    .style("fill-opacity", d => d.parent === root ? 1 : 0)
+    .style("display", d => d.parent === root ? "inline" : "none")
+    .text(d => d.data.name);
 
-let node = svg
-  .append("g")
-  .attr("stroke", "#fff")
-  .attr("stroke-width", 1.5)
-  .selectAll("circle")
-  .data(nodes)
-  .join("circle")
-  .attr("r", 5)
-  .attr("fill", (d) => color(d.group))
-  .call(
-    d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended)
-  );
+  svg.on("click", (event) => zoom(event, root));
 
-node.append("title").text((d) => d.id);
+  let focus = root;
+  let view = [focus.x, focus.y, focus.r * 2];
+  zoomTo(view);
 
-// Add a drag behavior.
-function dragstarted(event) {
-  if (!event.active) simulation.alphaTarget(0.3).restart();
-  event.subject.fx = event.subject.x;
-  event.subject.fy = event.subject.y;
+  function zoomTo(v) {
+    const k = width / 2 / v[2];
+    view = v;
+
+    label.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+    node.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+    node.attr("r", d => d.r * k);
+  }
+
+  function zoom(event, d) {
+    focus = d;
+
+    const transition = svg.transition()
+      .duration(event.altKey ? 7500 : 750)
+      .tween("zoom", () => {
+        const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+        return t => zoomTo(i(t));
+      });
+
+    label
+      .filter(function(d) {
+        // Filter to ensure all relevant labels (children, focus, and visible ancestors) are visible
+        return d === focus || d.ancestors().includes(focus);
+      })
+      .transition(transition)
+      .style("fill-opacity", d => d.parent === focus || d === focus ? 1 : 0)
+      .style("display", d => d.parent === focus || d === focus || d.ancestors().includes(focus) ? "inline" : "none")
+      .on("start", function(d) {
+        if (d === focus || d.ancestors().includes(focus)) this.style.display = "inline";
+      })
+      .on("end", function(d) {
+        if (!(d === focus || d.ancestors().includes(focus))) this.style.display = "none";
+      });
+  }
+
+  // Returning essential parts for external control
+  return {
+    svg: svg.node(),
+    zoomTo,
+    getView: () => view,
+    getFocus: () => focus,
+  };
 }
-
-function dragged(event) {
-  event.subject.fx = event.x;
-  event.subject.fy = event.y;
-}
-
-function dragended(event) {
-  if (!event.active) simulation.alphaTarget(0);
-  event.subject.fx = null;
-  event.subject.fy = null;
-}
-
-// Set the position attributes of links and nodes each time the simulation ticks.
-simulation.on("tick", () => {
-  link
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-
-  node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-});
-
-// Function to update the graph
-function updateGraph(newData) {
-  // Update the links and nodes data
-  links = newData.links.map((d) => ({ ...d }));
-  nodes = newData.nodes.map((d) => ({ ...d }));
-
-  // Restart the simulation with the new data
-  simulation.nodes(nodes);
-  simulation.force("link").links(links);
-
-  // Update the links selection
-  link = link
-    .data(links, (d) => `${d.source.id}-${d.target.id}`)
-    .join(
-      (enter) =>
-        enter.append("line").attr("stroke-width", (d) => Math.sqrt(d.value)),
-      (update) => update,
-      (exit) => exit.remove()
-    );
-
-  // Update the nodes selection
-  node = node
-    .data(nodes, (d) => d.id)
-    .join(
-      (enter) =>
-        enter
-          .append("circle")
-          .attr("r", 5)
-          .attr("fill", (d) => color(d.group))
-          .call(
-            d3
-              .drag()
-              .on("start", dragstarted)
-              .on("drag", dragged)
-              .on("end", dragended)
-          )
-          .call((enter) => enter.append("title").text((d) => d.id)),
-      (update) => update,
-      (exit) => exit.remove()
-    );
-
-  // Restart the simulation with new nodes and links
-  simulation.alpha(1).restart();
-}
-
-// Example of updating the graph with AJAX request every second
-setInterval(() => {
-  const url = "d3.json?cacheBuster=" + new Date().getTime();
-  fetch(url)
-    .then((response) => response.json())
-    .then((newData) => {
-      updateGraph(newData);
-    })
-    .catch((error) => console.error("Error fetching data:", error));
-}, 1000); // Update graph every second

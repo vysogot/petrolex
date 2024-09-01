@@ -7,7 +7,7 @@ module Petrolex
 
     attr_reader :current_tick, :speed
 
-    def initialize(speed: 5, tick_step: 1)
+    def initialize(speed: 100, tick_step: 1)
       @current_tick = STARTING_TICK
       @tick_step = tick_step
       @speed = speed

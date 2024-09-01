@@ -28,7 +28,7 @@ module Petrolex
 
       finalize_fueling(car, units_given, fueling_time)
 
-      { status:, fueling_time:, units_wanted:, units_given: }
+      { status:, car:, fueling_time:, units_wanted:, units_given: }
     end
 
     private

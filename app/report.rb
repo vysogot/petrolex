@@ -2,19 +2,30 @@
 
 module Petrolex
   class Report
-    attr_reader :sheet, :nodes, :links
+    attr_accessor :station
+    attr_reader :name, :document
 
-    def initialize
+    def initialize(name:)
+      @name = name
       @lock = Mutex.new
-      @sheet = { full: [], partial: [], none: [], waiting: 0, unserved: 0 }
+      @document = {}
     end
 
-    def increase_waiting
-      sheet[:waiting] += 1
+    def for(station:)
+      self.tap do |report|
+        report.station = station
+      end
     end
 
-    def decrease_waiting
-      sheet[:waiting] -= 1
+    def sheet
+      document[station.name] ||= {
+        full: [],
+        partial: [],
+        none: [],
+        waiting: [],
+        unserved: [],
+        being_served: []
+      }
     end
 
     def update_unserved(count:)
@@ -25,23 +36,34 @@ module Petrolex
       sheet[:reserve] = count
     end
 
-    def add_pumping(record:)
+    def add_record(record:)
       lock.synchronize do
         status = record.delete(:status)
         sheet[status] << record
       end
     end
 
+    def remove_record(record:)
+      lock.synchronize do
+        status = record.delete(:status)
+        sheet[status].delete_if { |entry| entry[:car] == record[:car] }
+      end
+    end
+
     def full = sheet[:full]
     def partial = sheet[:partial]
     def none = sheet[:none]
-    def unserved_count = sheet[:unserved]
-    def waiting_count = sheet[:waiting]
+    def waiting = sheet[:waiting]
+    def unserved = sheet[:unserved]
+    def being_served = sheet[:being_served]
     def reserve = sheet[:reserve]
 
     def full_count = full.size
     def partial_count = partial.size
     def none_count = none.size
+    def waiting_count = waiting.size
+    def unserved_count = unserved.size
+    def being_served_count = being_served.size
     def visitors_count = [full_count, partial_count, none_count].sum
 
     def served

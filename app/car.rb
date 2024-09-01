@@ -17,7 +17,7 @@ module Petrolex
     end
 
     def want
-      @want ||= volume - level
+      volume - level
     end
 
     def to_s = plate

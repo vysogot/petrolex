@@ -11,13 +11,17 @@ module Petrolex
     def call
       Async do |task|
         simulations.each do |simulation|
-          task.async { AsciiArt.new(simulation:).call } if ascii_art
+          task.async { AsciiArt.new(simulation:).call } if ascii_art?
           task.async { simulation.run }
         end
       end
     end
 
     private
+
+    def ascii_art?
+      ascii_art && simulations.size == 1
+    end
 
     attr_reader :simulations, :ascii_art
   end

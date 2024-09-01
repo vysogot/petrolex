@@ -4,18 +4,20 @@ module Petrolex
   class Simulation
     attr_reader :logger, :timer
 
-    def initialize(timer:, logger:)
+    def initialize(name:, timer:, logger:, report: nil)
+      @name = name
       @timer = timer
       @logger = logger
+      @report = report
 
-      @cars_number = 10
+      @cars_number = 100
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
       @cars_delay_interval_range = (0..2)
       @station_fuel_reserve = 2_000
-      @station_closing_tick = 300
-      @pumps_number_range = (1..3)
-      @pumps_speed_range = (1..5)
+      @station_closing_tick = 3000
+      @pumps_number_range = (10..30)
+      @pumps_speed_range = (30..50)
     end
 
     def configure
@@ -36,7 +38,7 @@ module Petrolex
 
     def intro
       <<~INTRO
-        Petrolex Station Simulator has started.\n
+        #{name} has started.\n
         Simulation speed: x#{timer.speed}
         Closing tick: #{station_closing_tick}
         Cars to arrive: #{cars_number}
@@ -59,7 +61,7 @@ module Petrolex
         Avg waiting time: #{report.avg_waiting_time} seconds
         Avg fueling time: #{report.avg_fueling_time} seconds
         Avg fueling speed: #{report.avg_fueling_speed} litres per second\n
-        Petrolex Station Simulator has ended.
+        #{name} has ended.
       REPORT
     end
 
@@ -72,6 +74,7 @@ module Petrolex
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve,
                   :station_closing_tick, :pumps_number_range, :pumps_speed_range
+    attr_reader :name
 
     def threads
       [
@@ -80,7 +83,7 @@ module Petrolex
         car_spawner_thread,
         road_thread,
         report_saver_thread
-      ]
+      ].compact
     end
 
     def station_thread
@@ -102,6 +105,8 @@ module Petrolex
     end
 
     def road_thread
+      return if true
+
       Thread.new do
         loop do
           road.refresh
@@ -139,7 +144,7 @@ module Petrolex
     def station
       @station ||= Station.new(
         simulation: self,
-        name: 'Station1',
+        name: "#{name}-station",
         reserve: station_fuel_reserve,
         pumps:
       )
@@ -156,7 +161,7 @@ module Petrolex
     end
 
     def report
-      @report ||= Report.new
+      @report ||= Report.new(name:)
     end
 
     def build_car

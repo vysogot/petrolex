@@ -1,21 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulations</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-    <style>
-        .bar {
-            fill: steelblue;
-        }
-        .bar:hover {
-            fill: orange;
-        }
-        .axis-label {
-            font-size: 12px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Your content here -->
     <script src="d3.js"></script>
-</body>
+    <style>
+      .bar {
+        fill: steelblue;
+      }
+      .bar:hover {
+        fill: orange;
+      }
+      .axis-label {
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="chart"></div>
+    <!-- Your content here -->
+    <script>
+    let data = {
+        name: "root",
+        children: [
+            {name: "child 1", value: 100},
+            {name: "child 2", value: 200},
+            {
+                name: "child 3", children: [
+                    {name: "grandchild 1", value: 50},
+                    {name: "grandchild 2", value: 150}
+                ]
+            }
+        ]
+    };
+
+    // Create the chart and append it to the div
+    let chartContainer = document.getElementById("chart");
+    let chartInstance = createChart(data);
+    chartContainer.appendChild(chartInstance.svg);
+
+    // Function to update the chart with new data while preserving zoom state
+    function updateChart(newData) {
+        // Preserve the current view and focus
+        const currentView = chartInstance.getView();
+        const currentFocus = chartInstance.getFocus();
+
+        // Remove the old chart
+        chartContainer.removeChild(chartInstance.svg);
+
+        // Create a new chart with the updated data
+        chartInstance = createChart(newData);
+
+        // Append the new chart
+        chartContainer.appendChild(chartInstance.svg);
+
+        // Reapply the previous zoom state
+        // chartInstance.zoomTo(currentView);
+    }
+
+    // Fetch new data and update the chart every second
+    setInterval(() => {
+        const url = "d3.json?cacheBuster=" + new Date().getTime();
+        fetch(url)
+          .then((response) => response.json())
+          .then((newData) => {
+            updateChart(newData);  // Update the chart with the new data
+          })
+          .catch((error) => console.error("Error fetching data:", error));
+    }, 2000); // Update graph every second
+    </script>
+  </body>
 </html>

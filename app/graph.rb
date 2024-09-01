@@ -2,6 +2,7 @@
 
 module Petrolex
   class Graph
+    attr_accessor :station_sheet
     attr_reader :report
 
     def initialize(report:)
@@ -9,43 +10,72 @@ module Petrolex
     end
 
     def elements
-      nodes = []
-      links = []
-
       {
-        nodes:,
-        links:
+        name: report.name,
+        children: stations
       }
     end
 
     def columns
-      [
-        { name: 'reserve', value: report.reserve },
-        { name: 'fuel given', value: report.fuel_given },
-        { name: 'cars in queue', value: report.waiting_count },
-        { name: 'cars fueled', value: report.full_count },
-        { name: 'cars partial', value: report.partial_count },
-        { name: 'cars none', value: report.none_count },
-        { name: 'cars unserved', value: report.unserved_count }
-      ]
+      report.document.map do |station_name, station_sheet|
+        [
+          { name: 'reserve', value: station_sheet[:reserve] },
+          { name: 'fuel given', value: station_sheet[:fuel_given] },
+          { name: 'cars in queue', value: station_sheet[:waiting_count] },
+          { name: 'cars fueled', value: station_sheet[:full_count] },
+          { name: 'cars partial', value: station_sheet[:partial_count] },
+          { name: 'cars none', value: station_sheet[:none_count] },
+          { name: 'cars unserved', value: station_sheet[:unserved_count] }
+        ]
+      end.flatten
     end
 
     private
 
-    def add_node(node, group)
-      nodes << { id: node.to_s, group: }
+    def stations
+      report.document.map do |station_name, station_sheet|
+        self.station_sheet = station_sheet
+
+        {
+          name: station_name,
+          children: [
+          *waiting,
+            {
+              name: 'Being served',
+              children: being_served
+            },
+            {
+              name: 'Served',
+              children: served
+            }
+          ]
+        }
+      end
     end
 
-    def add_link(source, target)
-      links << { source: source.to_s, target: target.to_s, value: 1 }
+    def being_served
+      station_sheet[:being_served].map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: car.want }
+      end
     end
 
-    def remove_node(source)
-      nodes.delete_if { |node| node[:id] == source.to_s }
+    def waiting
+      station_sheet[:waiting].map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: car.want }
+      end
     end
 
-    def remove_link(source, target)
-      links.delete_if { |node| node[:source] == source.to_s && node[:target] == target.to_s }
+    def served
+      served = [
+        station_sheet[:full], station_sheet[:partial]
+      ].flatten
+
+      served.map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: 1 }
+      end
     end
   end
 end
