@@ -11,7 +11,7 @@ module Petrolex
     def call
       Async do |task|
         simulations.each do |simulation|
-          task.async { AsciiArt.new.call } if ascii_art
+          task.async { AsciiArt.new(simulation:).call } if ascii_art
           task.async { simulation.run }
         end
       end

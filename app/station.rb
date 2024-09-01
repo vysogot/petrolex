@@ -8,9 +8,9 @@ module Petrolex
     attr_reader :mounted_pumps, :reserve, :name, :timer, :logger
     attr_accessor :is_open
 
-    def initialize(timer:, logger:, name:, reserve:, pumps:)
-      @timer = timer
-      @logger = logger
+    def initialize(simulation:, name:, reserve:, pumps:)
+      @timer = simulation.timer
+      @logger = simulation.logger
       @name = name
       @reserve = reserve
       @reserve_lock = Mutex.new

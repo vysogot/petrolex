@@ -7,7 +7,7 @@ params = {}
 OptionParser.new do |opts|
   opts.on('--aa')
 end.parse!(into: params)
-silent, ascii_art = !!params[:aa]
+silent = ascii_art = !!params[:aa]
 
 timer1 = Petrolex::Timer.new
 # timer2 = Petrolex::Timer.new(speed: 100)

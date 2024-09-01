@@ -2,6 +2,8 @@
 
 module Petrolex
   class Simulation
+    attr_reader :logger, :timer
+
     def initialize(timer:, logger:)
       @timer = timer
       @logger = logger
@@ -61,20 +63,24 @@ module Petrolex
       REPORT
     end
 
+    def roadies
+      road.roadies
+    end
+
     private
 
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve,
                   :station_closing_tick, :pumps_number_range, :pumps_speed_range
-    attr_reader :logger, :timer
 
     def threads
       [
         station_thread,
         queue_thread,
-        spawner_thread,
+        car_spawner_thread,
+        road_thread,
         report_saver_thread
-      ].flatten
+      ]
     end
 
     def station_thread
@@ -91,9 +97,23 @@ module Petrolex
       Thread.new { queue.consume }
     end
 
-    def spawner_thread
+    def road
+      @road ||= Road.new(queue:)
+    end
+
+    def road_thread
+      Thread.new do
+        loop do
+          road.refresh
+          timer.pause_for(1)
+        end
+      end
+    end
+
+    def car_spawner_thread
       Thread.new do
         random_interval_enumerator.each do |car|
+          road.push(car)
           queue.push(car)
         end
       end
@@ -118,8 +138,7 @@ module Petrolex
 
     def station
       @station ||= Station.new(
-        timer:,
-        logger:,
+        simulation: self,
         name: 'Station1',
         reserve: station_fuel_reserve,
         pumps:
@@ -149,13 +168,13 @@ module Petrolex
     end
 
     def random_interval_enumerator
-      Enumerator.new do |yielder|
+      Enumerator.new do |enum|
         cars_number.times do
           break if station.done?
 
           delay = SecureRandom.random_number(cars_delay_interval_range)
           timer.pause_for(delay)
-          yielder.yield(build_car)
+          enum.yield(build_car)
         end
       end
     end
