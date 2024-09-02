@@ -23,13 +23,8 @@ module Petrolex
         partial: [],
         none: [],
         waiting: [],
-        unserved: [],
         being_served: []
       }
-    end
-
-    def update_unserved(count:)
-      sheet[:unserved] = count
     end
 
     def update_reserve(count:)
@@ -54,7 +49,6 @@ module Petrolex
     def partial = sheet[:partial]
     def none = sheet[:none]
     def waiting = sheet[:waiting]
-    def unserved = sheet[:unserved]
     def being_served = sheet[:being_served]
     def reserve = sheet[:reserve]
 
@@ -62,7 +56,6 @@ module Petrolex
     def partial_count = partial.size
     def none_count = none.size
     def waiting_count = waiting.size
-    def unserved_count = unserved.size
     def being_served_count = being_served.size
     def visitors_count = [full_count, partial_count, none_count].sum
 

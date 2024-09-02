@@ -59,7 +59,7 @@ module Petrolex
     end
 
     def determine_status(units_given, units_wanted)
-      return :none unless units_given.positive?
+      return :none if units_given.zero?
 
       units_given == units_wanted ? :full : :partial
     end

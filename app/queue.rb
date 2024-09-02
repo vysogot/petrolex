@@ -24,10 +24,10 @@ module Petrolex
     end
 
     def consume
-      station.mounted_pumps.each do |pump|
+      station.mounted_pumps.map do |pump|
         Thread.new do
           loop do
-            break unless continue_consuming?
+            break unless station.open?
 
             car, waiting_time = fetch_next_car_from_queue
             process_fueling(pump, car, waiting_time)
@@ -45,17 +45,6 @@ module Petrolex
       waiting << [car, timer.current_tick]
       record = { status: :waiting, car: }
       report.for(station:).add_record(record:)
-    end
-
-    def continue_consuming?
-      return true if station.open?
-
-      waiting.each do |car, _waiting_time|
-        record = { status: :unserved, car: }
-        report.for(station:).add_record(record:)
-      end
-
-      false
     end
 
     def fetch_next_car_from_queue

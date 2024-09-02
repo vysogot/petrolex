@@ -5,6 +5,8 @@ function createChart(data) {
   const colorMapping = {
     "Served": "#4CAF50",      // Green
     "Being served": "#FF9800", // Orange
+    "None": "#222222",
+    "Partial": "#683012"
     // Add more mappings as needed
   };
 

@@ -14,7 +14,7 @@ module Petrolex
       @cars_volume_range = (35..70)
       @cars_level_range = (1...35)
       @cars_delay_interval_range = (0..2)
-      @station_fuel_reserve = 2_000
+      @station_fuel_reserve = 1_700
       @station_closing_tick = 3000
       @pumps_number_range = (10..30)
       @pumps_speed_range = (30..50)
@@ -55,7 +55,7 @@ module Petrolex
         Cars fully fueled: #{report.full_count}
         Cars partialy fueled: #{report.partial_count}
         Cars not fueled due to lack of fuel: #{report.none_count}
-        Cars not served at all: #{report.unserved_count}\n
+        Cars left in queue: #{report.waiting_count}\n
         Fuel left in station: #{report.reserve} litres
         Fuel pumped in cars: #{report.fuel_given} litres\n
         Avg waiting time: #{report.avg_waiting_time} seconds

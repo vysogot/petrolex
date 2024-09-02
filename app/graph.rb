@@ -12,7 +12,7 @@ module Petrolex
     def elements
       {
         name: report.name,
-        children: stations
+        children:
       }
     end
 
@@ -24,15 +24,14 @@ module Petrolex
           { name: 'cars in queue', value: station_sheet[:waiting_count] },
           { name: 'cars fueled', value: station_sheet[:full_count] },
           { name: 'cars partial', value: station_sheet[:partial_count] },
-          { name: 'cars none', value: station_sheet[:none_count] },
-          { name: 'cars unserved', value: station_sheet[:unserved_count] }
+          { name: 'cars none', value: station_sheet[:none_count] }
         ]
       end.flatten
     end
 
     private
 
-    def stations
+    def children
       report.document.map do |station_name, station_sheet|
         self.station_sheet = station_sheet
 
@@ -45,18 +44,19 @@ module Petrolex
               children: being_served
             },
             {
-              name: 'Served',
-              children: served
+              name: 'Full',
+              children: full
+            },
+            {
+              name: 'Partial',
+              children: partial
+            },
+            {
+              name: 'None',
+              children: none
             }
           ]
         }
-      end
-    end
-
-    def being_served
-      station_sheet[:being_served].map do |entry|
-        car = entry[:car]
-        { name: car.plate, value: car.want }
       end
     end
 
@@ -67,14 +67,31 @@ module Petrolex
       end
     end
 
-    def served
-      served = [
-        station_sheet[:full], station_sheet[:partial]
-      ].flatten
-
-      served.map do |entry|
+    def being_served
+      station_sheet[:being_served].map do |entry|
         car = entry[:car]
-        { name: car.plate, value: 1 }
+        { name: car.plate, value: car.want }
+      end
+    end
+
+    def full
+      station_sheet[:full].map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: entry[:units_given] }
+      end
+    end
+
+    def partial
+      station_sheet[:partial].map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: entry[:units_given] }
+      end
+    end
+
+    def none
+      station_sheet[:none].map do |entry|
+        car = entry[:car]
+        { name: car.plate, value: car.want }
       end
     end
   end
