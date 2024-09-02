@@ -33,7 +33,7 @@ module Petrolex
     attr_reader :lock, :silent, :timer, :color
 
     def colorize(message)
-      "\e[#{COLORS[color]}m#{message}\e[0m"
+      "\e[#{COLORS[color.to_sym]}m#{message}\e[0m"
     end
 
     def current_tick

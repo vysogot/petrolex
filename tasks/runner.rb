@@ -2,23 +2,35 @@
 
 require_relative '../app/petrolex'
 require 'optparse'
+require 'yaml'
 
 params = {}
 OptionParser.new do |opts|
   opts.on('--aa')
+  opts.on('--scenario STRING')
 end.parse!(into: params)
 silent = ascii_art = !!params[:aa]
+config = params[:scenario].to_sym || :alpha
 
-report = Petrolex::Report.new(name: 'Many simulations')
-timer1 = Petrolex::Timer.new
-timer2 = Petrolex::Timer.new
-timer3 = Petrolex::Timer.new
-logger1 = Petrolex::Logger.new(timer: timer1, silent:, color: :none)
-logger2 = Petrolex::Logger.new(timer: timer2, silent:, color: :yellow)
-logger3 = Petrolex::Logger.new(timer: timer2, silent:, color: :red)
-simulation1 = Petrolex::Simulation.new(name: 'Simulation1', timer: timer1, logger: logger1, report:)
-simulation2 = Petrolex::Simulation.new(name: 'Simulation2', timer: timer2, logger: logger2, report:)
-simulation3 = Petrolex::Simulation.new(name: 'Simulation3', timer: timer3, logger: logger3, report:)
+yaml_options = { aliases: true, permitted_classes: [Range, Symbol], symbolize_names: true }
+scenarios = YAML.load_file('./config/simulations.yml', **yaml_options)[:scenarios]
 
-simulations = [simulation1, simulation2, simulation3]
+timer = nil
+report = Petrolex::Report.new(name: config)
+simulations = scenarios[config][:simulations].map do |sim|
+  timer = Petrolex::Timer.new(speed: sim[:speed]) unless timer && timer.speed == sim[:speed]
+  logger = Petrolex::Logger.new(timer:, silent:, color: sim[:color])
+
+  Petrolex::Simulation.new(name: sim[:name], timer:, logger:, report:).configure do |config|
+    config.cars_number = sim[:cars_number]
+    config.cars_volume_range = sim[:cars_volume_range]
+    config.cars_level_range = sim[:cars_level_range]
+    config.cars_delay_interval_range = sim[:cars_delay_interval_range]
+    config.station_fuel_reserve = sim[:station_fuel_reserve]
+    config.station_closing_tick = sim[:station_closing_tick]
+    config.pumps_number_range = sim[:pumps_number_range]
+    config.pumps_speed_range = sim[:pumps_speed_range]
+  end
+end
+
 Petrolex::Runner.new(simulations:, ascii_art:).call

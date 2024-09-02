@@ -1,0 +1,35 @@
+---
+name: "Simulation Configurations"
+default_settings: &default_settings
+  color: none
+  speed: 1000
+  cars_number: 100
+  station_fuel_reserve: 1700
+  station_closing_tick: 3000
+  cars_delay_interval_range: !ruby/range 0..2
+  cars_level_range: !ruby/range 1...35
+  cars_volume_range: !ruby/range 35..70
+  pumps_number_range: !ruby/range 10..30
+  pumps_speed_range: !ruby/range 30..50
+
+scenarios:
+  alpha:
+    simulations:
+    - name: Simulation 1
+      color: red
+      <<: *default_settings
+
+    - name: Simulation 2
+      color: yellow
+      <<: *default_settings
+      station_fuel_reserve: 2000
+
+  beta:
+    simulations:
+    - name: Simulation 3
+      <<: *default_settings
+      station_fuel_reserve: 1000
+
+    - name: Simulation 4
+      <<: *default_settings
+      station_fuel_reserve: 4000

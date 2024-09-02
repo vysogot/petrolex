@@ -3,6 +3,9 @@
 module Petrolex
   class Simulation
     attr_reader :logger, :timer
+    attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
+      :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
+      :pumps_number_range, :pumps_speed_range
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
@@ -22,6 +25,7 @@ module Petrolex
 
     def configure
       yield(self)
+      self
     end
 
     def run
@@ -52,15 +56,15 @@ module Petrolex
     def outro
       <<~REPORT
         \nResults:
-        Cars fully fueled: #{report.full_count}
-        Cars partialy fueled: #{report.partial_count}
-        Cars not fueled due to lack of fuel: #{report.none_count}
-        Cars left in queue: #{report.waiting_count}\n
-        Fuel left in station: #{report.reserve} litres
-        Fuel pumped in cars: #{report.fuel_given} litres\n
-        Avg waiting time: #{report.avg_waiting_time} seconds
-        Avg fueling time: #{report.avg_fueling_time} seconds
-        Avg fueling speed: #{report.avg_fueling_speed} litres per second\n
+        Cars fully fueled: #{report.for(station:).full_count}
+        Cars partialy fueled: #{report.for(station:).partial_count}
+        Cars not fueled due to lack of fuel: #{report.for(station:).none_count}
+        Cars left in queue: #{report.for(station:).waiting_count}\n
+        Fuel left in station: #{report.for(station:).reserve} litres
+        Fuel pumped in cars: #{report.for(station:).fuel_given} litres\n
+        Avg waiting time: #{report.for(station:).avg_waiting_time} seconds
+        Avg fueling time: #{report.for(station:).avg_fueling_time} seconds
+        Avg fueling speed: #{report.for(station:).avg_fueling_speed} litres per second\n
         #{name} has ended.
       REPORT
     end
@@ -71,9 +75,6 @@ module Petrolex
 
     private
 
-    attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
-                  :cars_delay_interval_range, :station_fuel_reserve,
-                  :station_closing_tick, :pumps_number_range, :pumps_speed_range
     attr_reader :name
 
     def threads
