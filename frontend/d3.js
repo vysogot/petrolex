@@ -3,7 +3,7 @@ function createChart(data) {
   const height = 700;
 
   const colorMapping = {
-    "Served": "#4CAF50",      // Green
+    "Full": "#32C809",      // Green
     "Being served": "#FF9800", // Orange
     "None": "#222222",
     "Partial": "#683012"

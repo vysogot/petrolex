@@ -10,7 +10,7 @@ OptionParser.new do |opts|
   opts.on('--scenario STRING')
 end.parse!(into: params)
 silent = ascii_art = !!params[:aa]
-config = params[:scenario].to_sym || :alpha
+config = params[:scenario]&.to_sym || :alpha
 
 yaml_options = { aliases: true, permitted_classes: [Range, Symbol], symbolize_names: true }
 scenarios = YAML.load_file('./config/simulations.yml', **yaml_options)[:scenarios]

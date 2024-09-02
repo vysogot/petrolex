@@ -15,6 +15,11 @@ default_settings: &default_settings
 scenarios:
   alpha:
     simulations:
+    - name: Simulation 0
+      <<: *default_settings
+
+  beta:
+    simulations:
     - name: Simulation 1
       color: red
       <<: *default_settings
@@ -24,7 +29,7 @@ scenarios:
       <<: *default_settings
       station_fuel_reserve: 2000
 
-  beta:
+  gamma:
     simulations:
     - name: Simulation 3
       <<: *default_settings
@@ -32,4 +37,48 @@ scenarios:
 
     - name: Simulation 4
       <<: *default_settings
+      station_fuel_reserve: 2000
+
+    - name: Simulation 5
+      <<: *default_settings
+      station_fuel_reserve: 3000
+
+    - name: Simulation 6
+      <<: *default_settings
       station_fuel_reserve: 4000
+
+    - name: Simulation 7
+      <<: *default_settings
+      station_fuel_reserve: 5000
+
+    - name: Simulation 8
+      <<: *default_settings
+      station_fuel_reserve: 6000
+
+    - name: Simulation 9
+      <<: *default_settings
+      color: green
+      station_fuel_reserve: 1000
+
+    - name: Simulation 10
+      <<: *default_settings
+      station_fuel_reserve: 2000
+
+    - name: Simulation 11
+      <<: *default_settings
+      station_fuel_reserve: 3000
+
+    - name: Simulation 12
+      <<: *default_settings
+      station_fuel_reserve: 4000
+
+    - name: Simulation 13
+      <<: *default_settings
+      station_fuel_reserve: 5000
+      cars_level_range: !ruby/range 1..2
+      cars_volume_range: !ruby/range 3..4
+      station_closing_tick: 10000
+
+    - name: Simulation 14
+      <<: *default_settings
+      station_fuel_reserve: 6000
