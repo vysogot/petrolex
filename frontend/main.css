@@ -1,0 +1,37 @@
+.bar {
+  fill: steelblue;
+}
+.bar:hover {
+  fill: orange;
+}
+.axis-label {
+  font-size: 12px;
+}
+.chart-container {
+  vertical-align: top;
+}
+
+.chart-title {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 60px;
+  height: 28px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Container for all charts */
+#charts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}

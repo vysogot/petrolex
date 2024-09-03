@@ -1,4 +1,4 @@
-function createChart(data) {
+function createBubbleChart(data) {
   const width = 1400;
   const height = 700;
 
@@ -99,3 +99,52 @@ function createChart(data) {
     getFocus: () => focus,
   };
 }
+
+let data = {
+  name: "root",
+  children: [
+      {name: "child 1", value: 100},
+      {name: "child 2", value: 200},
+      {
+          name: "child 3", children: [
+              {name: "grandchild 1", value: 50},
+              {name: "grandchild 2", value: 150}
+          ]
+      }
+  ]
+};
+
+// Create the chart and append it to the div
+let chartContainer = document.getElementById("bubbles");
+let chartInstance = createBubbleChart(data);
+chartContainer.appendChild(chartInstance.svg);
+
+// Function to update the chart with new data while preserving zoom state
+function updateBubbleChart(newData) {
+  // Preserve the current view and focus
+  const currentView = chartInstance.getView();
+  const currentFocus = chartInstance.getFocus();
+
+  // Remove the old chart
+  chartContainer.removeChild(chartInstance.svg);
+
+  // Create a new chart with the updated data
+  chartInstance = createBubbleChart(newData);
+
+  // Append the new chart
+  chartContainer.appendChild(chartInstance.svg);
+
+  // Reapply the previous zoom state
+  // chartInstance.zoomTo(currentView);
+}
+
+// Fetch new data and update the chart every second
+setInterval(() => {
+  const url = "bubbles.json?cacheBuster=" + new Date().getTime();
+  fetch(url)
+    .then((response) => response.json())
+    .then((newData) => {
+      updateBubbleChart(newData);  // Update the chart with the new data
+    })
+    .catch((error) => console.error("Error fetching data:", error));
+}, 2000); // Update graph every second
