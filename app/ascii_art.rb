@@ -8,7 +8,7 @@ module Petrolex
                 :street_top, :street_bottom, :middle_line,
                 :simulation
 
-    def initialize(simulation:, rows: 42, columns: 84)
+    def initialize(simulation:, rows: 43, columns: 84)
       @simulation = simulation
       @columns = columns
       @rows = rows
@@ -52,7 +52,13 @@ module Petrolex
     end
 
     def create_grid
-      BOARD.split("\n")[1..].map do |x|
+      board = BOARD.dup
+
+      simulation.station.mounted_pumps.each do |pump|
+        board.sub!(/XX/, "PB")
+      end
+
+      board.split("\n")[1..].map do |x|
         x.tr!('.', ' ')
         x.scan(/.{2}/)
       end
@@ -73,30 +79,31 @@ BOARD = %q(
 |                                                                                                            |                                                       |
 |                                                                       /-------------------------------\    |                                                       |
 |                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 --------------------------------------------------------------------------------------------------------/    \--------------------------------------------------------
 .                                                                                                                                                                    .
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -.
 .                                                                                                                                                                    .
 --------------------------------------------------------------------------------------------------------\    /--------------------------------------------------------
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
-|                                                                       |                               |    |                                                       |
+|   XX      XX      XX      XX      XX      XX      XX      XX      XX  |                               |    |                                                       |
 |                                                                       |                               |    |                                                       |
 |                                                                       \-------------------------------/    |                                                       |
 |                                                                                                            |                                                       |

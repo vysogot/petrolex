@@ -2,14 +2,14 @@
 name: "Simsong"
 default_settings: &default_settings
   color: none
-  speed: 50
+  speed: 100
   cars_number: 100
   station_fuel_reserve: 3000
   station_closing_tick: 3000
-  cars_delay_interval_range: !ruby/range 5..10
+  cars_delay_interval_range: !ruby/range 2..5
   cars_level_range: !ruby/range 1..1
   cars_volume_range: !ruby/range 35..35
-  pumps_number_range: !ruby/range 2..2
+  pumps_number_range: !ruby/range 36..36
   pumps_speed_range: !ruby/range 3..3
 
 scenarios:

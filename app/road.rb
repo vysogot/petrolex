@@ -15,7 +15,8 @@ module Petrolex
     end
 
     def push(car)
-      row = [TOP_LANE, BOTTOM_LANE].sample
+      #row = [TOP_LANE, BOTTOM_LANE].sample
+      row = TOP_LANE
       column = START_COLUMN
 
       roadies << Roadie.new(car:, row:, column:)
@@ -26,6 +27,7 @@ module Petrolex
 
       refresh_moving_roadies
       refresh_roadies_in_queue
+      refresh_roadies_at_pumps
     end
 
     def refresh_moving_roadies
@@ -54,6 +56,19 @@ module Petrolex
       end
     end
 
+    def refresh_roadies_at_pumps
+      queue.station.mounted_pumps.each_with_index do |pump, index|
+        next if pump.car.nil?
+
+        roadie_by_pump = roadies.detect { |r| r.car == pump.car }
+        next if roadie_by_pump.nil?
+
+        row = at_upper_station?(roadie_by_pump) ? 8 : 34
+        roadie_by_pump.row = row + ((index / 9) * 3)
+        roadie_by_pump.column = 2 + ((index % 9) * 4)
+      end
+    end
+
     def update_moving_position(roadie)
       roadie.tap do |r|
         if r.going_left?
@@ -64,22 +79,28 @@ module Petrolex
           r.turn_left if r.row == 6
         elsif r.going_down?
           r.row += 1
-          r.turn_left if r.row == 35
+          r.turn_left if r.row == 36
         end
 
-        if (r.row == 6 || r.row == 35) && r.column < 35
+        if (r.row == 6 || r.row == 36) && r.column < 35
           put_in_queue(r)
         end
       end
     end
 
     def update_position_in_queue(roadie)
-      roadie.column = (queue.waiting.map {|x| x[0] }.index(roadie.car) + 1) * 2 rescue 1
+      position_in_queue = queue.waiting.map {|x| x[0] }&.index(roadie.car)
+      if roadie.car.want == 0 || queue.station.reserve_reading <= 0
+        roadie.start_moving
+      else
+        column = position_in_queue.nil? ? 1 : position_in_queue + 1 * 2
+        roadie.column = column
+      end
     end
 
     def put_in_queue(roadie)
       roadie.stop_moving
-      roadie.row = at_upper_station?(roadie) ? 1 : 41
+      roadie.row = at_upper_station?(roadie) ? 1 : 42
       roadie.column = queue.waiting.size * 2
 
       queue.push(roadie.car)

@@ -19,7 +19,7 @@ class Roadie
     @column = column
     @direction = direction
     @emoji = CARS.values.sample
-    @wants_fuel = rand(0..1).odd?
+    @wants_fuel = true#rand(0..1).odd?
     @moving = true
   end
 
@@ -61,5 +61,9 @@ class Roadie
 
   def stop_moving
     self.moving = false
+  end
+
+  def start_moving
+    self.moving = true
   end
 end

@@ -5,7 +5,7 @@ module Petrolex
   class Pump
     UNIT = 1
 
-    attr_accessor :id, :station, :is_busy
+    attr_accessor :id, :station, :is_busy, :car
     attr_reader :speed
 
     def initialize(speed:)
@@ -38,6 +38,7 @@ module Petrolex
 
     def prepare_for_fueling(car)
       self.is_busy = true
+      self.car = car
       logger.info("#{id} pumping #{car}")
     end
 
@@ -69,6 +70,7 @@ module Petrolex
       logger.info("#{last_servings}#{id} pumped #{units_given} litres " \
         "of fuel into #{car} in #{fueling_time} seconds")
       self.is_busy = false
+      self.car = nil
     end
   end
 end

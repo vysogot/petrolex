@@ -73,6 +73,15 @@ module Petrolex
       road.roadies
     end
 
+    def station
+      @station ||= Station.new(
+        simulation: self,
+        reserve: station_fuel_reserve,
+        name:,
+        pumps:
+      )
+    end
+
     private
 
     attr_reader :name
@@ -138,15 +147,6 @@ module Petrolex
           sleep(1)
         end
       end
-    end
-
-    def station
-      @station ||= Station.new(
-        simulation: self,
-        reserve: station_fuel_reserve,
-        name:,
-        pumps:
-      )
     end
 
     def pumps
