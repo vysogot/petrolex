@@ -93,7 +93,8 @@ module Petrolex
       else
         position_in_queue = queue.waiting.map {|x| x[0] }&.index(roadie.car)
         column = position_in_queue.nil? ? 1 : position_in_queue + 1 * 2
-        roadie.column = column
+        roadie.column = column * 2
+        roadie.column = 82 if roadie.column > 82
       end
     end
 
