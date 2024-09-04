@@ -32,7 +32,7 @@ module Petrolex
         self.grid = create_grid
 
         simulation.roadies.each do |roadie|
-          update_grid(roadie.row + 20, roadie.column, roadie.emoji)
+          update_grid(roadie.row, roadie.column, roadie.emoji)
         end
 
         sleep(0.3)
@@ -52,7 +52,10 @@ module Petrolex
     end
 
     def create_grid
-      BOARD.split("\n")[1..].map {|x| x.tr!('.', ' '); x.scan(/.{2}/) }
+      BOARD.split("\n")[1..].map do |x|
+        x.tr!('.', ' ')
+        x.scan(/.{2}/)
+      end
     end
 
     def print_board
