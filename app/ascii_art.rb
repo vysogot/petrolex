@@ -58,8 +58,13 @@ module Petrolex
 
       simulations.each do |simulation|
         simulation.station.mounted_pumps.each do |pump|
-          board.sub!(/XX/, "PB") if simulation.lane == :top
-          board.sub!(/YY/, "ON") if simulation.lane == :bottom
+          if simulation.lane == :top
+            board.sub!(/XX/, "PB")
+            board.gsub!(/top_tick/, simulation.timer.current_tick.to_s.rjust(8, '0'))
+          elsif simulation.lane == :bottom
+            board.sub!(/YY/, "ON") if simulation.lane == :bottom
+            board.gsub!(/btm_tick/, simulation.timer.current_tick.to_s.rjust(8, '0'))
+          end
         end
       end
 
@@ -80,7 +85,7 @@ BOARD = %q(
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 |                                                                                                                                                                    .
 |   ----------------------------------------------------------------------------------------------------\    \--------------------------------------------------------
-|                                                                                                       |    |                                                       |
+|                                                                                                       |    | Current tick: top_tick                                |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
@@ -101,7 +106,7 @@ BOARD = %q(
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -.
                                                                                                                                                                      .
 --------------------------------------------------------------------------------------------------------/    /--------------------------------------------------------
-    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
+    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    | Current tick: btm_tick                                |
                                                                                                         |    |                                                       |
                                                                                                         |    |                                                       |
     YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
