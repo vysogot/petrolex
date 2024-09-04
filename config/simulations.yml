@@ -3,14 +3,14 @@ name: "Simsong"
 default_settings: &default_settings
   color: none
   speed: 10
-  cars_number: 100
-  station_fuel_reserve: 1700
+  cars_number: 10
+  station_fuel_reserve: 3000
   station_closing_tick: 3000
-  cars_delay_interval_range: !ruby/range 10..20
-  cars_level_range: !ruby/range 1...35
-  cars_volume_range: !ruby/range 35..70
-  pumps_number_range: !ruby/range 2..8
-  pumps_speed_range: !ruby/range 3..5
+  cars_delay_interval_range: !ruby/range 10..10
+  cars_level_range: !ruby/range 1..1
+  cars_volume_range: !ruby/range 35..35
+  pumps_number_range: !ruby/range 2..2
+  pumps_speed_range: !ruby/range 3..3
 
 scenarios:
   alpha:
@@ -27,58 +27,47 @@ scenarios:
     - name: Sim 2
       color: yellow
       <<: *default_settings
-      station_fuel_reserve: 2000
 
   gamma:
     simulations:
     - name: Sim 3
       <<: *default_settings
-      station_fuel_reserve: 1000
+      pumps_number_range: !ruby/range 2..2
+      pumps_speed_range: !ruby/range 1..1
 
     - name: Sim 4
       <<: *default_settings
-      station_fuel_reserve: 2000
+      pumps_number_range: !ruby/range 3..3
+      pumps_speed_range: !ruby/range 2..2
 
     - name: Sim 5
       <<: *default_settings
-      station_fuel_reserve: 3000
+      pumps_number_range: !ruby/range 4..4
+      pumps_speed_range: !ruby/range 3..3
 
-    - name: Sim 6
-      <<: *default_settings
-      station_fuel_reserve: 4000
+    # - name: Sim 6
+    #   <<: *default_settings
 
-    - name: Sim 7
-      <<: *default_settings
-      station_fuel_reserve: 5000
+    # - name: Sim 7
+    #   <<: *default_settings
 
-    - name: Sim 8
-      <<: *default_settings
-      station_fuel_reserve: 6000
+    # - name: Sim 8
+    #   <<: *default_settings
 
-    - name: Sim 9
-      <<: *default_settings
-      color: green
-      station_fuel_reserve: 1000
+    # - name: Sim 9
+    #   <<: *default_settings
 
-    - name: Sim 10
-      <<: *default_settings
-      station_fuel_reserve: 2000
+    # - name: Sim 10
+    #   <<: *default_settings
 
-    - name: Sim 11
-      <<: *default_settings
-      station_fuel_reserve: 3000
+    # - name: Sim 11
+    #   <<: *default_settings
 
-    - name: Sim 12
-      <<: *default_settings
-      station_fuel_reserve: 4000
+    # - name: Sim 12
+    #   <<: *default_settings
 
-    - name: Sim 13
-      <<: *default_settings
-      station_fuel_reserve: 5000
-      cars_level_range: !ruby/range 1..2
-      cars_volume_range: !ruby/range 3..4
-      station_closing_tick: 10000
+    # - name: Sim 13
+    #   <<: *default_settings
 
-    - name: Sim 14
-      <<: *default_settings
-      station_fuel_reserve: 6000
+    # - name: Sim 14
+    #   <<: *default_settings

@@ -104,4 +104,4 @@ function createTables() {
 createTables();
 
 // Fetch data and update the tables every 2 seconds
-setInterval(createTables, 2000);
+setInterval(createTables, 500);

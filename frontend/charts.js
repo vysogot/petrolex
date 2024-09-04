@@ -150,7 +150,7 @@ function fetchDataAndUpdate() {
 }
 
 // Fetch data and update the charts every 2 seconds
-setInterval(fetchDataAndUpdate, 2000);
+setInterval(fetchDataAndUpdate, 500);
 
 // Initial fetch to render the charts immediately
 fetchDataAndUpdate();

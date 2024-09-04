@@ -106,8 +106,6 @@ module Petrolex
     end
 
     def road_thread
-      return if true
-
       Thread.new do
         loop do
           road.refresh

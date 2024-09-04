@@ -147,4 +147,4 @@ setInterval(() => {
       updateBubbleChart(newData);  // Update the chart with the new data
     })
     .catch((error) => console.error("Error fetching data:", error));
-}, 2000); // Update graph every second
+}, 500); // Update graph every second
