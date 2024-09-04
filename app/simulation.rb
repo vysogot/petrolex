@@ -5,7 +5,7 @@ module Petrolex
     attr_reader :logger, :timer
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
-                  :pumps_number_range, :pumps_speed_range, :ascii_art
+                  :pumps_number_range, :pumps_speed_range, :ascii_art, :lane
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
@@ -111,7 +111,7 @@ module Petrolex
     end
 
     def road
-      @road ||= Road.new(queue:)
+      @road ||= Road.new(queue:, lane:)
     end
 
     def road_thread

@@ -2,31 +2,38 @@
 name: "Simsong"
 default_settings: &default_settings
   color: none
-  speed: 10
-  cars_number: 100
-  station_fuel_reserve: 3000
+  lane: top
+  speed: 20
+  cars_number: 1000
+  station_fuel_reserve: 30000
   station_closing_tick: 3000
   cars_delay_interval_range: !ruby/range 2..5
-  cars_level_range: !ruby/range 1..1
-  cars_volume_range: !ruby/range 35..35
-  pumps_number_range: !ruby/range 12..12
-  pumps_speed_range: !ruby/range 3..3
+  cars_level_range: !ruby/range 1...35
+  cars_volume_range: !ruby/range 50..70
+  pumps_number_range: !ruby/range 10..10
+  pumps_speed_range: !ruby/range 1..3
 
 scenarios:
   alpha:
     simulations:
     - name: Sim 0
       <<: *default_settings
+      lane: bottom
 
   beta:
     simulations:
     - name: Sim 1
-      color: red
       <<: *default_settings
+      lane: top
+      pumps_number_range: !ruby/range 6..6
+      pumps_speed_range: !ruby/range 2..3
 
     - name: Sim 2
-      color: yellow
       <<: *default_settings
+      color: yellow
+      lane: bottom
+      pumps_number_range: !ruby/range 3..3
+      pumps_speed_range: !ruby/range 1..1
 
   gamma:
     simulations:

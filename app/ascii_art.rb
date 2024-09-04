@@ -6,10 +6,10 @@ module Petrolex
     attr_accessor :grid
     attr_reader :columns, :rows,
                 :street_top, :street_bottom, :middle_line,
-                :simulation
+                :simulations
 
-    def initialize(simulation:, rows: 43, columns: 84)
-      @simulation = simulation
+    def initialize(simulations:, rows: 43, columns: 84)
+      @simulations = simulations
       @columns = columns
       @rows = rows
       @street_top = (rows / 2) + 2
@@ -31,8 +31,10 @@ module Petrolex
       loop do
         self.grid = create_grid
 
-        simulation.roadies.each do |roadie|
-          update_grid(roadie.row, roadie.column, roadie.emoji)
+        simulations.each do |simulation|
+          simulation.roadies.each do |roadie|
+            update_grid(roadie.row, roadie.column, roadie.emoji)
+          end
         end
 
         sleep(0.3)
@@ -54,9 +56,14 @@ module Petrolex
     def create_grid
       board = BOARD.dup
 
-      simulation.station.mounted_pumps.each do |pump|
-        board.sub!(/XX/, "PB")
+      simulations.each do |simulation|
+        simulation.station.mounted_pumps.each do |pump|
+          board.sub!(/XX/, "PB") if simulation.lane == :top
+          board.sub!(/YY/, "ON") if simulation.lane == :bottom
+        end
       end
+
+      board.gsub!(/(XX|YY)/, '  ')
 
       board.split("\n")[1..].map do |x|
         x.tr!('.', ' ')
@@ -72,47 +79,47 @@ module Petrolex
 BOARD = %q(
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 |                                                                                                                                                                    .
-|   ----------------------------------------------------------------------------------------------------\    \-------------------------------------------------------\
+|   ----------------------------------------------------------------------------------------------------\    \--------------------------------------------------------
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
-.                                                                                                       |    |                                                       |
-.                                                                                                       |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX  |    |                                                       |
 --------------------------------------------------------------------------------------------------------\    \--------------------------------------------------------
-.                                                                                                                                                                    .
+                                                                                                                                                                     .
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -.
-.                                                                                                                                                                    .
+                                                                                                                                                                     .
 --------------------------------------------------------------------------------------------------------/    /--------------------------------------------------------
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-.                                                                          []                           |    |                                                       |
-- - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX -  - XX - - []                           |    |                                                       |
-.                                                                                                       |    |                                                       |
-.                                                                                                       |    |                                                       |
+    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
+    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY  |    |                                                       |
+                                                                                                        |    |                                                       |
+                                                                                                        |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
 |                                                                                                       |    |                                                       |
-|   ----------------------------------------------------------------------------------------------------/    /-------------------------------------------------------/
-|                                                                                                                                                                    .
+|   ----------------------------------------------------------------------------------------------------/    /--------------------------------------------------------
+                                                                                                                                                                     .
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 )
 end
