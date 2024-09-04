@@ -3,12 +3,12 @@
 module Petrolex
   # Manages cars in a station
   class Queue
-    attr_reader :station, :queue_lock, :waiting, :cond_var, :report
+    attr_reader :station, :lock, :waiting, :cond_var, :report
 
     def initialize(station:, report:)
       @station = station
       @report = report
-      @queue_lock = Mutex.new
+      @lock = Mutex.new
       @cond_var = ConditionVariable.new
       @waiting = []
     end
@@ -16,7 +16,7 @@ module Petrolex
     def push(car)
       return unless station.open?
 
-      queue_lock.synchronize do
+      lock.synchronize do
         add_car_to_queue(car)
         logger.info("#{car} is #{waiting.size} in queue")
         cond_var.signal
@@ -48,8 +48,8 @@ module Petrolex
     end
 
     def fetch_next_car_from_queue
-      queue_lock.synchronize do
-        cond_var.wait(queue_lock) while waiting.empty?
+      lock.synchronize do
+        cond_var.wait(lock) while waiting.empty?
 
         car, waiting_since = waiting.shift
         record = { status: :waiting, car: }

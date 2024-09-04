@@ -24,22 +24,37 @@ module Petrolex
     def refresh
       roadies.reject! { |r| r.column < 1 }
 
+      refresh_moving_roadies
+      refresh_roadies_in_queue
+    end
+
+    def refresh_moving_roadies
       roadies.each do |r|
-        update_position(r)
+        next unless r.moving?
+
+        update_moving_position(r)
 
         if fuel?(r)
           if r.row == 22
             r.turn_down
           elsif r.row == 20
             r.turn_up
-          elsif r.column == 35
-            queue.push(r.car)
           end
         end
       end
     end
 
-    def update_position(roadie)
+    def refresh_roadies_in_queue
+      queue.lock.synchronize do
+        roadies.each do |r|
+          next if r.moving?
+
+          update_position_in_queue(r)
+        end
+      end
+    end
+
+    def update_moving_position(roadie)
       roadie.tap do |r|
         if r.going_left?
           r.column -= 1
@@ -51,7 +66,27 @@ module Petrolex
           r.row += 1
           r.turn_left if r.row == 35
         end
+
+        if (r.row == 6 || r.row == 35) && r.column < 35
+          put_in_queue(r)
+        end
       end
+    end
+
+    def update_position_in_queue(roadie)
+      roadie.column = (queue.waiting.map {|x| x[0] }.index(roadie.car) + 1) * 2 rescue 1
+    end
+
+    def put_in_queue(roadie)
+      roadie.stop_moving
+      roadie.row = at_upper_station?(roadie) ? 1 : 41
+      roadie.column = queue.waiting.size * 2
+
+      queue.push(roadie.car)
+    end
+
+    def at_upper_station?(roadie)
+      roadie.row < 20
     end
 
     def fuel?(roadie)

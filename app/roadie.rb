@@ -10,7 +10,7 @@ class Roadie
     ambulance: "\u{1F691}"
   }
 
-  attr_accessor :car, :row, :column, :direction
+  attr_accessor :car, :row, :column, :direction, :moving
   attr_reader :emoji, :wants_fuel
 
   def initialize(car:, row:, column:, direction: :left)
@@ -20,6 +20,7 @@ class Roadie
     @direction = direction
     @emoji = CARS.values.sample
     @wants_fuel = rand(0..1).odd?
+    @moving = true
   end
 
   def at?(given_row:, given_column:)
@@ -42,6 +43,10 @@ class Roadie
     direction == :up
   end
 
+  def moving?
+    moving
+  end
+
   def turn_left
     self.direction = :left
   end
@@ -52,5 +57,9 @@ class Roadie
 
   def turn_up
     self.direction = :up
+  end
+
+  def stop_moving
+    self.moving = false
   end
 end

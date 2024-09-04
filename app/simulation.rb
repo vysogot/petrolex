@@ -118,7 +118,7 @@ module Petrolex
       Thread.new do
         random_interval_enumerator.each do |car|
           road.push(car)
-          queue.push(car)
+          # queue.push(car)
         end
       end
     end
