@@ -66,22 +66,26 @@ module Petrolex
         row = at_upper_station?(roadie_by_pump) ? 8 : 34
         roadie_by_pump.row = row + ((index / 9) * 3)
         roadie_by_pump.column = 2 + ((index % 9) * 4)
+
+        if roadie_by_pump.car.want == 0
+          roadie_by_pump.row -= 1
+        end
       end
     end
 
     def update_moving_position(roadie)
       roadie.tap do |r|
         if r.going_left?
-          r.column -= 1
+          r.column -= 1 unless roadies.any? { |x| x.row == r.row && x.column == r.column - 1}
         elsif r.going_up?
-          r.row -= 1
-          r.turn_left if r.row == 6
+          r.row -= 1 unless roadies.any? { |x| x.row == r.row - 1 && x.column == r.column}
+          r.turn_left if r.row == 1
         elsif r.going_down?
-          r.row += 1
-          r.turn_left if r.row == 36
+          r.row += 1 unless roadies.any? { |x| x.row == r.row + 1 && x.column == r.column}
+          r.turn_left if r.row == 41
         end
 
-        if (r.row == 6 || r.row == 36) && r.column < 35
+        if (r.row == 1 || r.row == 41) && r.column < 2
           put_in_queue(r)
         end
       end

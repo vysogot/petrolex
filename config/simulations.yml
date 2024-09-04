@@ -2,7 +2,7 @@
 name: "Simsong"
 default_settings: &default_settings
   color: none
-  speed: 100
+  speed: 10
   cars_number: 100
   station_fuel_reserve: 3000
   station_closing_tick: 3000
