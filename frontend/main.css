@@ -35,3 +35,39 @@
   flex-wrap: wrap;
   justify-content: space-around;
 }
+
+.table-container {
+  display: inline-block;
+  width: 300px;
+  margin: 10px;
+  vertical-align: top;
+}
+
+.table-title {
+  text-align: center;
+}
+
+.metric-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+
+.metric-table th,
+.metric-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.metric-table th {
+  background-color: #f2f2f2;
+}
+
+.metric-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.metric-table tr:hover {
+  background-color: #f1f1f1;
+}

@@ -5,7 +5,7 @@ module Petrolex
   class Road
     attr_reader :rows, :columns, :queue, :roadies
 
-    def initialize(rows: 3, columns: 82, queue:)
+    def initialize(queue:, rows: 3, columns: 82)
       @rows = rows
       @columns = columns
       @queue = queue
@@ -52,7 +52,7 @@ module Petrolex
       end
 
       def wants_fuel?
-        rand(0..1) % 2 == 1
+        rand(0..1).odd?
       end
     end
   end

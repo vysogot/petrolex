@@ -44,7 +44,7 @@ module Petrolex
     def add_car_to_queue(car)
       waiting << [car, timer.current_tick]
       record = { status: :waiting, car: }
-      report.for(station:).add_record(record:)
+      report.for(station_name: station.name).add_record(record:)
     end
 
     def fetch_next_car_from_queue
@@ -53,7 +53,7 @@ module Petrolex
 
         car, waiting_since = waiting.shift
         record = { status: :waiting, car: }
-        report.for(station:).remove_record(record:)
+        report.for(station_name: station.name).remove_record(record:)
         waiting_time = timer.current_tick - waiting_since
 
         [car, waiting_time]
@@ -62,14 +62,14 @@ module Petrolex
 
     def process_fueling(pump, car, waiting_time)
       pre_record = { status: :being_served, car: }
-      report.for(station:).add_record(record: pre_record.dup)
+      report.for(station_name: station.name).add_record(record: pre_record.dup)
 
       record = pump.fuel(car)
 
       record[:waiting_time] = waiting_time
-      report.for(station:).add_record(record:)
-      report.for(station:).remove_record(record: pre_record)
-      report.for(station:).update_reserve(count: station.reserve_reading)
+      report.for(station_name: station.name).add_record(record:)
+      report.for(station_name: station.name).remove_record(record: pre_record)
+      report.for(station_name: station.name).update_reserve(count: station.reserve_reading)
     end
   end
 end

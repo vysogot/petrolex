@@ -4,8 +4,8 @@ module Petrolex
   class Simulation
     attr_reader :logger, :timer
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
-      :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
-      :pumps_number_range, :pumps_speed_range
+                  :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
+                  :pumps_number_range, :pumps_speed_range
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
@@ -56,15 +56,15 @@ module Petrolex
     def outro
       <<~REPORT
         \nResults:
-        Cars fully fueled: #{report.for(station:).full_count}
-        Cars partialy fueled: #{report.for(station:).partial_count}
-        Cars not fueled due to lack of fuel: #{report.for(station:).none_count}
-        Cars left in queue: #{report.for(station:).waiting_count}\n
-        Fuel left in station: #{report.for(station:).reserve} litres
-        Fuel pumped in cars: #{report.for(station:).fuel_given} litres\n
-        Avg waiting time: #{report.for(station:).avg_waiting_time} seconds
-        Avg fueling time: #{report.for(station:).avg_fueling_time} seconds
-        Avg fueling speed: #{report.for(station:).avg_fueling_speed} litres per second\n
+        Cars fully fueled: #{report.for(station_name: station.name).full_count}
+        Cars partialy fueled: #{report.for(station_name: station.name).partial_count}
+        Cars not fueled due to lack of fuel: #{report.for(station_name: station.name).none_count}
+        Cars left in queue: #{report.for(station_name: station.name).waiting_count}\n
+        Fuel left in station: #{report.for(station_name: station.name).reserve} litres
+        Fuel pumped in cars: #{report.for(station_name: station.name).fuel_given} litres\n
+        Avg waiting time: #{report.for(station_name: station.name).avg_waiting_time} seconds
+        Avg fueling time: #{report.for(station_name: station.name).avg_fueling_time} seconds
+        Avg fueling speed: #{report.for(station_name: station.name).avg_fueling_speed} litres per second\n
         #{name} has ended.
       REPORT
     end
@@ -145,8 +145,8 @@ module Petrolex
     def station
       @station ||= Station.new(
         simulation: self,
-        name: "#{name}-station",
         reserve: station_fuel_reserve,
+        name:,
         pumps:
       )
     end

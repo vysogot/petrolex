@@ -7,9 +7,11 @@ require 'yaml'
 params = {}
 OptionParser.new do |opts|
   opts.on('--aa')
+  opts.on('--silent')
   opts.on('--scenario STRING')
 end.parse!(into: params)
-silent = ascii_art = !!params[:aa]
+silent = params[:silent] || !!params[:aa]
+ascii_art = !!params[:aa]
 config = params[:scenario]&.to_sym || :alpha
 
 yaml_options = { aliases: true, permitted_classes: [Range, Symbol], symbolize_names: true }

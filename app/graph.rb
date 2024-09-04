@@ -17,16 +17,16 @@ module Petrolex
     end
 
     def columns
-      report.document.map do |station_name, station_sheet|
-        [
-          { name: 'reserve', value: station_sheet[:reserve] },
-          { name: 'fuel given', value: station_sheet[:fuel_given] },
-          { name: 'cars in queue', value: station_sheet[:waiting_count] },
-          { name: 'cars fueled', value: station_sheet[:full_count] },
-          { name: 'cars partial', value: station_sheet[:partial_count] },
-          { name: 'cars none', value: station_sheet[:none_count] }
-        ]
-      end.flatten
+      hash = {}
+      %i[reserve full_count partial_count none_count waiting_count being_served_count
+         visitors_count fuel_given total_fueling_time total_waiting_time
+         avg_fueling_speed avg_fueling_time avg_waiting_time].each do |field|
+        hash[field] = []
+        report.document.dup.each do |station_name, _station_sheet|
+          hash[field] << { name: station_name, value: report.for(station_name:).send(field).to_s || 0 }
+        end
+      end
+      hash
     end
 
     private
@@ -38,7 +38,7 @@ module Petrolex
         {
           name: station_name,
           children: [
-          *waiting,
+            *waiting,
             {
               name: 'Being served',
               children: being_served

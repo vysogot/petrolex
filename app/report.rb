@@ -2,7 +2,7 @@
 
 module Petrolex
   class Report
-    attr_accessor :station
+    attr_accessor :station_name
     attr_reader :name, :document
 
     def initialize(name:)
@@ -11,14 +11,14 @@ module Petrolex
       @document = {}
     end
 
-    def for(station:)
-      self.tap do |report|
-        report.station = station
+    def for(station_name:)
+      tap do |report|
+        report.station_name = station_name
       end
     end
 
     def sheet
-      document[station.name] ||= {
+      document[station_name] ||= {
         full: [],
         partial: [],
         none: [],
