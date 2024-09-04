@@ -24,6 +24,7 @@ simulations = scenarios[config][:simulations].map do |sim|
   logger = Petrolex::Logger.new(timer:, silent:, color: sim[:color])
 
   Petrolex::Simulation.new(name: sim[:name], timer:, logger:, report:).configure do |config|
+    config.ascii_art = ascii_art
     config.cars_number = sim[:cars_number]
     config.cars_volume_range = sim[:cars_volume_range]
     config.cars_level_range = sim[:cars_level_range]

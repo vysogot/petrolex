@@ -73,7 +73,6 @@ module Petrolex
       roadie.tap do |r|
         if r.going_left?
           r.column -= 1
-          #r.column = columns - 1 if r.column < 1
         elsif r.going_up?
           r.row -= 1
           r.turn_left if r.row == 6
@@ -89,10 +88,10 @@ module Petrolex
     end
 
     def update_position_in_queue(roadie)
-      position_in_queue = queue.waiting.map {|x| x[0] }&.index(roadie.car)
-      if roadie.car.want == 0 || queue.station.reserve_reading <= 0
+      if roadie.car.want == 0 || queue.station.reserve_reading <= 0 || queue.station.done?
         roadie.start_moving
       else
+        position_in_queue = queue.waiting.map {|x| x[0] }&.index(roadie.car)
         column = position_in_queue.nil? ? 1 : position_in_queue + 1 * 2
         roadie.column = column
       end

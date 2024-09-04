@@ -5,7 +5,7 @@ module Petrolex
     attr_reader :logger, :timer
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
-                  :pumps_number_range, :pumps_speed_range
+                  :pumps_number_range, :pumps_speed_range, :ascii_art
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
@@ -115,6 +115,8 @@ module Petrolex
     end
 
     def road_thread
+      return unless ascii_art?
+
       Thread.new do
         loop do
           road.refresh
@@ -126,8 +128,7 @@ module Petrolex
     def car_spawner_thread
       Thread.new do
         random_interval_enumerator.each do |car|
-          road.push(car)
-          # queue.push(car)
+          ascii_art? ? road.push(car) : queue.push(car)
         end
       end
     end
@@ -185,6 +186,10 @@ module Petrolex
 
     def pumps_print
       pumps.map(&:speed).sort.join(', ')
+    end
+
+    def ascii_art?
+      ascii_art
     end
 
     def clock_monotonic
