@@ -5,7 +5,7 @@ module Petrolex
     attr_reader :logger, :timer
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
-                  :pumps_number_range, :pumps_speed_range, :ascii_art, :lane
+                  :pumps_number_range, :pumps_speed_range, :ascii_art, :lane, :finished
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
@@ -38,6 +38,8 @@ module Petrolex
       finish_time = clock_monotonic
 
       logger.print "Simulation took #{(finish_time - start_time).round(6)} seconds"
+      threads.each(&:kill)
+      self.finished = true
     end
 
     def intro
@@ -69,8 +71,16 @@ module Petrolex
       REPORT
     end
 
+    def finished?
+      finished
+    end
+
     def roadies
       road.roadies
+    end
+
+    def report
+      @report ||= Report.new(name:)
     end
 
     def station
@@ -119,6 +129,8 @@ module Petrolex
 
       Thread.new do
         loop do
+          break if station.done?
+
           road.refresh
           timer.pause_for(1)
         end
@@ -158,10 +170,6 @@ module Petrolex
 
     def queue
       @queue ||= Queue.new(station:, report:)
-    end
-
-    def report
-      @report ||= Report.new(name:)
     end
 
     def build_car

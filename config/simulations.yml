@@ -7,7 +7,7 @@ default_settings: &default_settings
   cars_number: 1000
   station_fuel_reserve: 30000
   station_closing_tick: 3000
-  cars_delay_interval_range: !ruby/range 2..5
+  cars_delay_interval_range: !ruby/range 30..60
   cars_level_range: !ruby/range 1...35
   cars_volume_range: !ruby/range 50..70
   pumps_number_range: !ruby/range 10..10
@@ -25,15 +25,15 @@ scenarios:
     - name: Sim 1
       <<: *default_settings
       lane: top
-      speed: 100
-      pumps_number_range: !ruby/range 6..6
+      pumps_number_range: !ruby/range 5..5
       pumps_speed_range: !ruby/range 2..3
 
     - name: Sim 2
       <<: *default_settings
       color: yellow
       lane: bottom
-      pumps_number_range: !ruby/range 3..3
+      cars_delay_interval_range: !ruby/range 3..6
+      pumps_number_range: !ruby/range 5..5
       pumps_speed_range: !ruby/range 1..1
 
   gamma:
