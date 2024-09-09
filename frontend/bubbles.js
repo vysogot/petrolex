@@ -20,14 +20,16 @@ function createBubbleChart(data) {
     .padding(3)
     (d3.hierarchy(data)
       .sum(d => d.value)
-      .sort((a, b) => b.value - a.value));
+      // Sort by name before value, to ensure outermost bubbles are ordered by name
+      .sort((a, b) => a.data.name.localeCompare(b.data.name))
+    );
   let root = pack(data);
 
   const svg = d3.create("svg")
     .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
     .attr("width", width)
     .attr("height", height)
-    .attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -14px; background: ${color(0)}; cursor: pointer;`);
+    .attr("style", `max-width: 100%; height: auto; display: block; margin: 0 -14px; background: #ffffff; cursor: pointer;`);
 
   const node = svg.append("g")
     .selectAll("circle")
@@ -101,17 +103,6 @@ function createBubbleChart(data) {
 }
 
 let data = {
-  name: "root",
-  children: [
-      {name: "child 1", value: 100},
-      {name: "child 2", value: 200},
-      {
-          name: "child 3", children: [
-              {name: "grandchild 1", value: 50},
-              {name: "grandchild 2", value: 150}
-          ]
-      }
-  ]
 };
 
 // Create the chart and append it to the div
@@ -138,13 +129,15 @@ function updateBubbleChart(newData) {
   // chartInstance.zoomTo(currentView);
 }
 
-// Fetch new data and update the chart every second
 setInterval(() => {
-  const url = "bubbles.json?cacheBuster=" + new Date().getTime();
-  fetch(url)
-    .then((response) => response.json())
-    .then((newData) => {
-      updateBubbleChart(newData);  // Update the chart with the new data
-    })
-    .catch((error) => console.error("Error fetching data:", error));
+  // Only refresh if the user is not zoomed in (focus is root)
+  if (chartInstance.getFocus().depth === 0) {
+    const url = "bubbles.json?cacheBuster=" + new Date().getTime();
+    fetch(url)
+      .then((response) => response.json())
+      .then((newData) => {
+        updateBubbleChart(newData);  // Update the chart with the new data
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }
 }, 500); // Update graph every second

@@ -20,7 +20,7 @@ module Petrolex
       hash = {}
       %i[reserve full_count partial_count none_count waiting_count being_served_count
          visitors_count fuel_given total_fueling_time total_waiting_time
-         avg_fueling_speed avg_fueling_time avg_waiting_time].each do |field|
+         avg_fueling_speed avg_fueling_time avg_waiting_time total_revenue].each do |field|
         hash[field] = []
         report.document.dup.each do |station_name, _station_sheet|
           hash[field] << { name: station_name, value: report.for(station_name:).send(field).to_s || 0 }

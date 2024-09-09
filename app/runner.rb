@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Petrolex
-  # Runs a simulation
   class Runner
     def initialize(simulations:, ascii_art:)
       @simulations = simulations
@@ -10,7 +9,7 @@ module Petrolex
 
     def call
       Async do |task|
-        task.async { AsciiArt.new(simulations: simulations.take(2)).call } if ascii_art?
+        task.async { first_two_simulations.call } if ascii_art?
 
         simulations.each do |simulation|
           task.async { simulation.run }
@@ -19,6 +18,10 @@ module Petrolex
     end
 
     private
+
+    def first_two_simulations
+      AsciiArt.new(simulations: simulations.take(2))
+    end
 
     def ascii_art?
       ascii_art

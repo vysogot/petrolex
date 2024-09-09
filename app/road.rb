@@ -22,11 +22,14 @@ module Petrolex
     end
 
     def refresh
-      roadies.reject! { |r| r.column < 1 }
-
+      remove_old_roadies
       refresh_moving_roadies
       refresh_roadies_in_queue
       refresh_roadies_at_pumps
+    end
+
+    def remove_old_roadies
+      roadies.reject! { |r| r.column < 1 }
     end
 
     def refresh_moving_roadies
@@ -64,12 +67,12 @@ module Petrolex
 
         if at_upper_station?(roadie_by_pump)
           row = 8
-          roadie_by_pump.row = row + ((index / 13) * 3)
-          roadie_by_pump.column = 2 + ((index % 13) * 4)
+          roadie_by_pump.row = row + ((index / 11) * 3)
+          roadie_by_pump.column = 2 + ((index % 11) * 4)
         else
           row = 25
-          roadie_by_pump.row = row + ((index / 13) * 3)
-          roadie_by_pump.column = 2 + ((index % 13) * 4)
+          roadie_by_pump.row = row + ((index / 11) * 3)
+          roadie_by_pump.column = 2 + ((index % 11) * 4)
         end
 
         if roadie_by_pump.car.want == 0
@@ -135,7 +138,7 @@ module Petrolex
     end
 
     def fuel?(roadie)
-      roadie.at?(given_row: roadie.row, given_column: 53) && roadie.wants_fuel? && (queue.waiting.size < 20)
+      queue.station.open? && roadie.at?(given_row: roadie.row, given_column: 53) && roadie.wants_fuel? && (queue.waiting.size < 20)
     end
   end
 end

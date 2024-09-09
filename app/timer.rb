@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Petrolex
-  # Syncs simulation time
   class Timer
     STARTING_TICK = 0
 
@@ -36,10 +35,6 @@ module Petrolex
 
     def over?(given_tick)
       current_tick >= given_tick
-    end
-
-    def ticks_from(given_tick)
-      current_tick - given_tick
     end
 
     def pause_for(ticks)

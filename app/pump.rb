@@ -21,6 +21,8 @@ module Petrolex
       start = timer.current_tick
       units_wanted = car.want.dup
       units_given = perform_fueling(car, units_wanted)
+      bill = units_given * station.fuel_price
+      cost = units_given * 1.0/(speed * 100)
       status = determine_status(units_given, units_wanted)
 
       finish = timer.current_tick
@@ -28,7 +30,7 @@ module Petrolex
 
       finalize_fueling(car, units_given, fueling_time)
 
-      { status:, car:, fueling_time:, units_wanted:, units_given: }
+      { status:, car:, fueling_time:, units_wanted:, units_given:, bill:, cost: }
     end
 
     private

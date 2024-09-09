@@ -3,22 +3,173 @@ name: "Simsong"
 default_settings: &default_settings
   color: none
   lane: top
-  speed: 10
-  cars_number: 1000
-  station_fuel_reserve: 30000
-  station_closing_tick: 3000
+  speed: 1000
+  cars_number: 100000
+  station_fuel_reserve: 300000
+  station_closing_tick: 30000
   cars_delay_interval_range: !ruby/range 30..60
-  cars_level_range: !ruby/range 1...35
-  cars_volume_range: !ruby/range 50..70
+  cars_level_range: !ruby/range 1..1
+  cars_volume_range: !ruby/range 35..35
   pumps_number_range: !ruby/range 10..10
   pumps_speed_range: !ruby/range 1..3
+  fuel_price: 1.05
+  fuel_cost: 0.23410
+  pump_base_cost: 100
 
 scenarios:
+  manager:
+    simulations:
+    - name: Sim 2
+      <<: *default_settings
+      lane: top
+      speed: 1000
+      cars_number: 5000
+      cars_delay_interval_range: !ruby/range 2..6
+      pumps_number_range: !ruby/range 18..18
+      pumps_speed_range: !ruby/range 3..5
+      station_fuel_reserve: 100000
+      station_closing_tick: 15000
+      fuel_price: 0.89
+    - name: Sim 5
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 100
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 6..6
+      pumps_speed_range: !ruby/range 1..3
+      station_fuel_reserve: 2000
+      station_closing_tick: 1500
+      fuel_price: 1.94
+
+  demo-two:
+    simulations:
+    - name: Sim 2
+      <<: *default_settings
+      lane: top
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 3..3
+      pumps_speed_range: !ruby/range 3..3
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 5
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 6..6
+      pumps_speed_range: !ruby/range 6..6
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+
+  demo-nine:
+    simulations:
+    - name: Sim 0
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 1..1
+      pumps_speed_range: !ruby/range 1..1
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 1
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 2..2
+      pumps_speed_range: !ruby/range 2..2
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 2
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 3..3
+      pumps_speed_range: !ruby/range 3..3
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 3
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 4..4
+      pumps_speed_range: !ruby/range 4..4
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 4
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 5..5
+      pumps_speed_range: !ruby/range 5..5
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 5
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 6..6
+      pumps_speed_range: !ruby/range 6..6
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 6
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 7..7
+      pumps_speed_range: !ruby/range 7..7
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 7
+      <<: *default_settings
+      lane: top
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 8..8
+      pumps_speed_range: !ruby/range 8..8
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+    - name: Sim 8
+      <<: *default_settings
+      lane: bottom
+      speed: 20
+      cars_number: 10
+      cars_delay_interval_range: !ruby/range 4..8
+      pumps_number_range: !ruby/range 9..9
+      pumps_speed_range: !ruby/range 9..9
+      station_fuel_reserve: 200
+      station_closing_tick: 300
+
   alpha:
     simulations:
     - name: Sim 0
       <<: *default_settings
       lane: bottom
+      speed: 20
+      cars_number: 5
+      cars_delay_interval_range: !ruby/range 1..10
+      pumps_number_range: !ruby/range 2..2
+      pumps_speed_range: !ruby/range 1..2
+      station_fuel_reserve: 200
+      station_closing_tick: 100
 
   beta:
     simulations:
@@ -32,9 +183,11 @@ scenarios:
       <<: *default_settings
       color: yellow
       lane: bottom
+      speed: 100
       cars_delay_interval_range: !ruby/range 3..6
-      pumps_number_range: !ruby/range 5..5
+      pumps_number_range: !ruby/range 30..30
       pumps_speed_range: !ruby/range 1..1
+      fuel_price: 1.32
 
   gamma:
     simulations:
@@ -53,29 +206,29 @@ scenarios:
       pumps_number_range: !ruby/range 4..4
       pumps_speed_range: !ruby/range 3..3
 
-    # - name: Sim 6
-    #   <<: *default_settings
+    - name: Sim 6
+      <<: *default_settings
 
-    # - name: Sim 7
-    #   <<: *default_settings
+    - name: Sim 7
+      <<: *default_settings
 
-    # - name: Sim 8
-    #   <<: *default_settings
+    - name: Sim 8
+      <<: *default_settings
 
-    # - name: Sim 9
-    #   <<: *default_settings
+    - name: Sim 9
+      <<: *default_settings
 
-    # - name: Sim 10
-    #   <<: *default_settings
+    - name: Sim 10
+      <<: *default_settings
 
-    # - name: Sim 11
-    #   <<: *default_settings
+    - name: Sim 11
+      <<: *default_settings
 
-    # - name: Sim 12
-    #   <<: *default_settings
+    - name: Sim 12
+      <<: *default_settings
 
-    # - name: Sim 13
-    #   <<: *default_settings
+    - name: Sim 13
+      <<: *default_settings
 
-    # - name: Sim 14
-    #   <<: *default_settings
+    - name: Sim 14
+      <<: *default_settings

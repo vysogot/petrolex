@@ -5,22 +5,14 @@ module Petrolex
     attr_reader :logger, :timer
     attr_accessor :cars_number, :cars_volume_range, :cars_level_range,
                   :cars_delay_interval_range, :station_fuel_reserve, :station_closing_tick,
-                  :pumps_number_range, :pumps_speed_range, :ascii_art, :lane, :finished
+                  :pumps_number_range, :pumps_speed_range, :lane, :fuel_price,
+                  :ascii_art, :finished, :name, :fuel_cost, :pump_base_cost
 
     def initialize(name:, timer:, logger:, report: nil)
       @name = name
       @timer = timer
       @logger = logger
       @report = report
-
-      @cars_number = 100
-      @cars_volume_range = (35..70)
-      @cars_level_range = (1...35)
-      @cars_delay_interval_range = (0..2)
-      @station_fuel_reserve = 1_700
-      @station_closing_tick = 3000
-      @pumps_number_range = (10..30)
-      @pumps_speed_range = (30..50)
     end
 
     def configure
@@ -88,13 +80,14 @@ module Petrolex
         simulation: self,
         reserve: station_fuel_reserve,
         name:,
-        pumps:
+        pumps:,
+        fuel_price:,
+        fuel_cost:,
+        pump_base_cost:
       )
     end
 
     private
-
-    attr_reader :name
 
     def threads
       [
