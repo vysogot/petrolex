@@ -33,10 +33,6 @@ module Petrolex
       sleep(tick_duration)
     end
 
-    def over?(given_tick)
-      current_tick >= given_tick
-    end
-
     def pause_for(ticks)
       pause_until(current_tick + ticks)
     end
@@ -56,6 +52,10 @@ module Petrolex
 
     def tick
       self.current_tick += tick_step
+    end
+
+    def over?(given_tick)
+      current_tick >= given_tick
     end
   end
 end

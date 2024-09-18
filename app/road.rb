@@ -18,7 +18,7 @@ module Petrolex
       row = lane
       column = START_COLUMN
 
-      roadies << Roadie.new(car:, row:, column:)
+      roadies << Petrolex::Roadie.new(car:, row:, column:)
     end
 
     def refresh
