@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'ascii_board'
+
 module Petrolex
   # Draws the simulation in console
   class AsciiArt
@@ -31,15 +33,15 @@ module Petrolex
       loop do
         self.grid = create_grid
 
-        simulations.each do |simulation|
-          simulation.roadies.each do |roadie|
+        simulations.each do |sim|
+          sim.roadies.each do |roadie|
             update_grid(roadie.row, roadie.column, roadie.emoji)
           end
         end
 
         sleep(0.3)
 
-        break if simulations.all? { |sim| sim.finished? }
+        break if all_finished?
       end
     end
 
@@ -53,7 +55,7 @@ module Petrolex
         print_board
         sleep(0.3)
 
-        break if simulations.all? { |sim| sim.finished? }
+        break if all_finished?
       end
     end
 
@@ -61,84 +63,16 @@ module Petrolex
       board = BOARD.dup
       board.tr!('.', ' ')
 
-      simulations.each do |simulation|
-        simulation.station.mounted_pumps.each do |pump|
-          if simulation.lane == :top
+      simulations.each do |sim|
+        sim.station.mounted_pumps.each do
+          if sim.lane == :top
             board.sub!(/XX/, "PB")
-          elsif simulation.lane == :bottom
-            board.sub!(/YY/, "ON") if simulation.lane == :bottom
+          elsif sim.lane == :bottom
+            board.sub!(/YY/, "ON")
           end
         end
 
-        if simulation.lane == :top
-          if report(simulation).waiting_count < 20
-            board.sub!(/TTTTTT/, colorize("\\    \\", 32))
-          else
-            board.sub!(/TTTTTT/, colorize('------', 31))
-          end
-          if simulation.station.open?
-            board.sub!(/QQQQQ/, colorize("    /", 32))
-          else
-            board.sub!(/QQQQQ/, colorize("-----", 31))
-          end
-          board.sub!(/top_name/, simulation.name.rjust(8, ' '))
-          board.sub!(/top_curr/, simulation.timer.current_tick.to_s.rjust(8, ' '))
-          board.sub!(/top_wait/, report(simulation).waiting_count.to_s.rjust(8, ' '))
-          board.sub!(/top_bein/, report(simulation).being_served_count.to_s.rjust(8, ' '))
-          board.sub!(/top_full/, report(simulation).full_count.to_s.rjust(8, ' '))
-          board.sub!(/top_cars/, report(simulation).visitors_count.to_s.rjust(8, ' '))
-          board.sub!(/top_rese/, report(simulation).reserve.to_s.rjust(8, ' '))
-          board.sub!(/top_fuel/, report(simulation).fuel_given.to_s.rjust(8, ' '))
-          board.sub!(/top_ttfu/, report(simulation).total_fueling_time.to_s.rjust(8, ' '))
-          board.sub!(/top_ttwa/, report(simulation).total_waiting_time.to_s.rjust(8, ' '))
-          board.sub!(/top_avfu/, report(simulation).avg_fueling_time.to_s.rjust(8, ' '))
-          board.sub!(/top_avwa/, report(simulation).avg_waiting_time.to_s.rjust(8, ' '))
-          board.sub!(/top_avpm/, simulation.station.avg_pumps_speed.to_s.rjust(4, ' ') + ' s/l')
-          board.sub!(/top_part/, report(simulation).partial_count.to_s.rjust(8, ' '))
-          board.sub!(/top_notf/, report(simulation).none_count.to_s.rjust(8, ' '))
-          board.sub!(/top_\$/, simulation.fuel_price.to_s.rjust(5, ' '))
-          board.sub!(/top_income/, ('$' + report(simulation).total_income.to_s).rjust(10, ' '))
-          board.sub!(/top_ttcost/, ('$' + report(simulation).total_cost.to_s).rjust(10, ' '))
-          board.sub!(/top_ttreve/, ('$' + report(simulation).total_revenue.to_s).rjust(10, ' '))
-          board.sub!(/top_spee/, simulation.timer.speed.to_s.rjust(8, ' '))
-          board.sub!(/top_clos/, simulation.station_closing_tick.to_s.ljust(8, ' '))
-          board.sub!(/top_fuco/, report(simulation).initial_fuel_cost.to_s.rjust(8, ' '))
-          board.sub!(/top_puco/, report(simulation).initial_pumps_cost.to_s.rjust(8, ' '))
-        elsif simulation.lane == :bottom
-          if report(simulation).waiting_count < 20
-            board.sub!(/BBBBBB/, colorize('/    /', 32))
-          else
-            board.sub!(/BBBBBB/, colorize('------', 31))
-          end
-          if simulation.station.open?
-            board.sub!(/WWWWW/, colorize("    \\", 32))
-          else
-            board.sub!(/WWWWW/, colorize("-----", 31))
-          end
-          board.sub!(/btm_name/, simulation.name.rjust(8, ' '))
-          board.sub!(/btm_curr/, simulation.timer.current_tick.to_s.rjust(8, ' '))
-          board.sub!(/btm_wait/, report(simulation).waiting_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_bein/, report(simulation).being_served_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_full/, report(simulation).full_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_cars/, report(simulation).visitors_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_rese/, report(simulation).reserve.to_s.rjust(8, ' '))
-          board.sub!(/btm_fuel/, report(simulation).fuel_given.to_s.rjust(8, ' '))
-          board.sub!(/btm_ttfu/, report(simulation).total_fueling_time.to_s.rjust(8, ' '))
-          board.sub!(/btm_ttwa/, report(simulation).total_waiting_time.to_s.rjust(8, ' '))
-          board.sub!(/btm_avfu/, report(simulation).avg_fueling_time.to_s.rjust(8, ' '))
-          board.sub!(/btm_avwa/, report(simulation).avg_waiting_time.to_s.rjust(8, ' '))
-          board.sub!(/btm_avpm/, simulation.station.avg_pumps_speed.to_s.rjust(4, ' ') + ' s/l')
-          board.sub!(/btm_part/, report(simulation).partial_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_notf/, report(simulation).none_count.to_s.rjust(8, ' '))
-          board.sub!(/btm_\$/, simulation.fuel_price.to_s.rjust(5, ' '))
-          board.sub!(/btm_income/, ('$' + report(simulation).total_income.to_s).rjust(10, ' '))
-          board.sub!(/btm_ttcost/, ('$' + report(simulation).total_cost.to_s).rjust(10, ' '))
-          board.sub!(/btm_ttreve/, ('$' + report(simulation).total_revenue.to_s).rjust(10, ' '))
-          board.sub!(/btm_spee/, simulation.timer.speed.to_s.rjust(8, ' '))
-          board.sub!(/btm_clos/, simulation.station_closing_tick.to_s.ljust(8, ' '))
-          board.sub!(/btm_fuco/, report(simulation).initial_fuel_cost.to_s.rjust(8, ' '))
-          board.sub!(/btm_puco/, report(simulation).initial_pumps_cost.to_s.rjust(8, ' '))
-        end
+        fill_lane(board, sim)
       end
 
       board.gsub!(/(XX|YY)/, '  ')
@@ -148,8 +82,50 @@ module Petrolex
       end
     end
 
-    def report(simulation)
-      simulation.report.for(station_name: simulation.station.name)
+    def fill_lane(board, sim)
+      stats = sim.report.for(station_name: sim.station.name)
+      prefix = sim.lane == :top ? 'top' : 'btm'
+      queue_full = stats.waiting_count >= 20
+
+      if sim.lane == :top
+        board.sub!(/TTTTTT/, queue_full ? colorize('------', 31) : colorize("\\    \\", 32))
+        board.sub!(/QQQQQ/, sim.station.open? ? colorize("    /", 32) : colorize("-----", 31))
+      else
+        board.sub!(/BBBBBB/, queue_full ? colorize('------', 31) : colorize('/    /', 32))
+        board.sub!(/WWWWW/, sim.station.open? ? colorize("    \\", 32) : colorize("-----", 31))
+      end
+
+      board.sub!(/#{prefix}_name/, pad(sim.name))
+      board.sub!(/#{prefix}_curr/, pad(sim.timer.current_tick))
+      board.sub!(/#{prefix}_wait/, pad(stats.waiting_count))
+      board.sub!(/#{prefix}_bein/, pad(stats.being_served_count))
+      board.sub!(/#{prefix}_full/, pad(stats.full_count))
+      board.sub!(/#{prefix}_cars/, pad(stats.visitors_count))
+      board.sub!(/#{prefix}_rese/, pad(stats.reserve))
+      board.sub!(/#{prefix}_fuel/, pad(stats.fuel_given))
+      board.sub!(/#{prefix}_ttfu/, pad(stats.total_fueling_time))
+      board.sub!(/#{prefix}_ttwa/, pad(stats.total_waiting_time))
+      board.sub!(/#{prefix}_avfu/, pad(stats.avg_fueling_time))
+      board.sub!(/#{prefix}_avwa/, pad(stats.avg_waiting_time))
+      board.sub!(/#{prefix}_avpm/, pad(sim.station.avg_pumps_speed, 4) + ' s/l')
+      board.sub!(/#{prefix}_part/, pad(stats.partial_count))
+      board.sub!(/#{prefix}_notf/, pad(stats.none_count))
+      board.sub!(/#{prefix}_\$/, pad(sim.fuel_price, 5))
+      board.sub!(/#{prefix}_income/, pad('$' + stats.total_income.to_s, 10))
+      board.sub!(/#{prefix}_ttcost/, pad('$' + stats.total_cost.to_s, 10))
+      board.sub!(/#{prefix}_ttreve/, pad('$' + stats.total_revenue.to_s, 10))
+      board.sub!(/#{prefix}_spee/, pad(sim.timer.speed))
+      board.sub!(/#{prefix}_clos/, sim.station_closing_tick.to_s.ljust(8, ' '))
+      board.sub!(/#{prefix}_fuco/, pad(stats.initial_fuel_cost))
+      board.sub!(/#{prefix}_puco/, pad(stats.initial_pumps_cost))
+    end
+
+    def all_finished?
+      simulations.all?(&:finished?)
+    end
+
+    def pad(value, width = 8)
+      value.to_s.rjust(width, ' ')
     end
 
     def colorize(message, color)
@@ -160,51 +136,4 @@ module Petrolex
       puts(grid.map { |row| row.join }.join("\r\n"))
     end
   end
-
-BOARD = %q(
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                                                                                                                     .
-|QQQQQ--------------------------------------------------------------------------------------------------\    \--------------------------------------------------------
-|                                                                                                       |    |  Current tick: top_curr/top_clos           top_name   |
-|                                                                                                       |    |                                                       |
-|                                                                                                       |    |       Waiting: top_wait         Sim speed: top_spee   |
-|                                                                                                       |    |  Being served: top_bein         Fuel cost: top_fuco   |
-                                                                                                        |    |  Fully served: top_full        Pumps cost: top_puco   |
-                                                                                            _________   |    |       Reserve: top_rese                               |
-    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      |       |   |    |    Fuel given: top_fuel                               |
-                                                                                            | PB-95 |   |    |  TT Fuel time: top_ttfu                               |
-                                                                                            |       |   |    |  TT Wait time: top_ttwa                               |
-    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      | top_$ |   |    |  AV Fuel time: top_avfu                               |
-                                                                                            |       |   |    |  AV Wait time: top_avwa                               |
-                                                                                            | $ / l |   |    |  AV Pmp speed: top_avpm                               |
-    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      |       |   |    |     Partially: top_part             Cost: top_ttcost  |
-                                                                                            |       |   |    |    Not fueled: top_notf           Income: top_income  |
-                                                                                            |_______|   |    |    Cars visit: top_cars          Revenue: top_ttreve  |
-    XX      XX      XX      XX      XX      XX      XX      XX      XX      XX      XX     /_________\  |    |                                                       |
---------------------------------------------------------------------------------------------------------TTTTTT--------------------------------------------------------
-                                                                                                                                                                     .
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -.
-                                                                                                                                                                     .
---------------------------------------------------------------------------------------------------------BBBBBB--------------------------------------------------------
-    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      _________   |    |  Current tick: btm_curr/btm_clos           btm_name   |
-                                                                                            |       |   |    |                                                       |
-                                                                                            |  O-N  |   |    |       Waiting: btm_wait         Sim speed: btm_spee   |
-    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      |       |   |    |  Being served: btm_bein         Fuel cost: btm_fuco   |
-                                                                                            | btm_$ |   |    |  Fully served: btm_full        Pumps cost: btm_puco   |
-                                                                                            |       |   |    |       Reserve: btm_rese                               |
-    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      | $ / l |   |    |    Fuel given: btm_fuel                               |
-                                                                                            |       |   |    |  TT Fuel time: btm_ttfu                               |
-                                                                                            |       |   |    |  TT Wait time: btm_ttwa                               |
-    YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      YY      |_______|   |    |  AV Fuel time: btm_avfu                               |
-                                                                                           /_________\  |    |  AV Wait time: btm_avwa                               |
-                                                                                                        |    |  AV Pmp speed: btm_avpm                               |
-|                                                                                                       |    |     Partially: btm_part            Cost: btm_ttcost   |
-|                                                                                                       |    |    Not fueled: btm_notf          Income: btm_income   |
-|                                                                                                       |    |    Cars visit: btm_cars         Revenue: btm_ttreve   |
-|                                                                                                       |    |                                                       |
-|                                                                                                       |    |                                                       |
-|WWWWW--------------------------------------------------------------------------------------------------/    /--------------------------------------------------------
-                                                                                                                                                                     .
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-)
 end

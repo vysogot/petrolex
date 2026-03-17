@@ -1,14 +1,6 @@
 ### Petrol Station Simulator
 
-Each car, station with pump, and queue consumer run as async tasks (via the `async` gem).
-There is a timer that syncs them.
-
-The purpose of simulation is to find an optimal station/pump/queueing setup.
-The metric is an average waiting time of a car.
-
-Future ideas: more stations, more pumps, transactions, visualising, online game etc.
-
-Have fun!
+Each car, station with pumps, and queue consumer run as async tasks (via the `async` gem), synchronized by a shared timer. The goal is to find an optimal station/pump/queueing setup by minimizing average customer wait time across different configurations.
 
 ### Install & run
 
@@ -17,8 +9,10 @@ bundle install
 bundle exec ruby tasks/runner.rb                   # default scenario (alpha)
 bundle exec ruby tasks/runner.rb --scenario alpha  # named scenario
 bundle exec ruby tasks/runner.rb --silent          # suppress log output
-bundle exec ruby tasks/runner.rb --aa              # ASCII art visualisation
+bundle exec ruby tasks/runner.rb --aa              # ASCII art visualisation (2 simulations)
 ```
+
+Available scenarios: `alpha`, `beta`, `gamma`, `demo-two`, `demo-nine`, `manager`
 
 ### Tests
 
@@ -27,118 +21,52 @@ bundle exec m test                         # all tests
 bundle exec m test/report_test.rb          # single file
 ```
 
-### Sample outputs
+### Sample output
 
-Some clients left unfueled:
 ```
-Petrolex Station Simulator has started.
+Sim 0 has started.
 
-Simulation speed: x100
-Closing tick: 1000
-
+Simulation speed: x20
+Closing tick: 200
 Cars to arrive: 5
-Station fuel reserve: 100
-Pump fueling speed: 0.5 litre/second
+Station fuel reserve: 200
+Pumps fueling speeds: 1, 2, 3
 
 Tick | Message
 --------------
-00000: Station opens. Awaiting cars.
-00022: Car#6420 has arrived and is 1 in queue
-00023: Car#6420 waited 1 seconds to fuel
-00023: Car#6420 starts fueling 30 litres
-00033: Car#2662 has arrived and is 1 in queue
-00048: Car#4168 has arrived and is 2 in queue
-00066: Car#3882 has arrived and is 3 in queue
-00078: Car#6791 has arrived and is 4 in queue
-00083: Car#6420 got 30 liters in 60.0 seconds
-00084: Car#2662 waited 51 seconds to fuel
-00084: Car#2662 starts fueling 39 litres
-00162: Car#2662 got 39 liters in 78.0 seconds
-00163: Car#4168 needed 38 litres and has left due to lack of fuel
-00164: Car#3882 waited 98 seconds to fuel
-00164: Car#3882 starts fueling 30 litres
-00224: Car#3882 got 30 liters in 60.0 seconds
-00225: Car#6791 needed 17 litres and has left due to lack of fuel
-01000: Station closes. Goodbye!
+
+000000: Station opens
+000003: PGN-1 is 1 in queue
+000003: Pump1 pumping PGN-1
+000006: WAW-2 is 1 in queue
+000006: Pump2 pumping WAW-2
+000006: Pump2 pumped 0 litres of fuel into WAW-2 in 0 seconds
+000010: PGN-3 is 1 in queue
+000010: Pump2 pumping PGN-3
+000020: KRA-4 is 1 in queue
+000020: Pump1 pumped 17 litres of fuel into PGN-1 in 17 seconds
+000020: Pump1 pumping KRA-4
+000023: KRA-5 is 1 in queue
+000023: Pump3 pumping KRA-5
+000040: Pump1 pumped 20 litres of fuel into KRA-4 in 20 seconds
+000042: Pump2 pumped 16 litres of fuel into PGN-3 in 32 seconds
+000140: Pump3 pumped 39 litres of fuel into KRA-5 in 117 seconds
+000200: Station closes
 
 Results:
-Cars served: 3
-Cars left in line: 0
-Cars left the station unserved: 2
+Cars fully fueled: 4
+Cars partialy fueled: 0
+Cars not fueled due to lack of fuel: 1
+Cars left in queue: 0
 
-Avg wait time: 50.0 seconds
-Avg fueling time: 66.0 seconds
-Fuel left in station: 1 litres
+Fuel left in station: 108 litres
+Fuel pumped in cars: 92 litres
 
-Petrolex Station Simulator has ended.
+Avg waiting time: 0.0 seconds
+Avg fueling time: 46.5 seconds
+Avg fueling speed: 2.02 litres per second
+
+Sim 0 has ended.
+
+Simulation took 11.026036 seconds
 ```
-
-All clients fueled:
-```
-Petrolex Station Simulator has started.
-
-Simulation speed: x1000
-Closing tick: 1000
-
-Cars to arrive: 5
-Station fuel reserve: 1000
-Pump fueling speed: 0.5 litre/second
-
-Tick | Message
---------------
-00000: Station opens. Awaiting cars.
-00015: Car#6045 has arrived and is 1 in queue
-00015: Car#6045 waited 0 seconds to fuel
-00015: Car#6045 starts fueling 42 litres
-00062: Car#5663 has arrived and is 1 in queue
-00073: Car#9201 has arrived and is 2 in queue
-00092: Car#4503 has arrived and is 3 in queue
-00099: Car#6045 got 42 liters in 84.0 seconds
-00100: Car#5663 waited 38 seconds to fuel
-00100: Car#5663 starts fueling 29 litres
-00100: Car#789 has arrived and is 3 in queue
-00158: Car#5663 got 29 liters in 58.0 seconds
-00159: Car#9201 waited 86 seconds to fuel
-00159: Car#9201 starts fueling 3 litres
-00165: Car#9201 got 3 liters in 6.0 seconds
-00166: Car#4503 waited 74 seconds to fuel
-00166: Car#4503 starts fueling 46 litres
-00258: Car#4503 got 46 liters in 92.0 seconds
-00259: Car#789 waited 159 seconds to fuel
-00259: Car#789 starts fueling 49 litres
-00357: Car#789 got 49 liters in 98.0 seconds
-01000: Station closes. Goodbye!
-
-Results:
-Cars served: 5
-Cars left in line: 0
-Cars left the station unserved: 0
-
-Avg wait time: 71.4 seconds
-Avg fueling time: 67.6 seconds
-Fuel left in station: 831 litres
-
-Petrolex Station Simulator has ended.
-```
-
-### TODO
-
-#### Runner
-
-* Is getting hard to read
-
-#### Tests
-
-* Out of date
-
-#### Queue, station, pump
-
-* All need refactoring but now work on a right basis
-* The code is completely WIP
-
-#### Issues
-
-* Report in unstructured and needs its own object, same with single records
-* Report needs aggregations
-* Report needs access to how many cars didn't reach
-* Report may have inaccurate data

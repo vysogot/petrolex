@@ -162,14 +162,16 @@ scenarios:
     simulations:
     - name: Sim 0
       <<: *default_settings
+      cars_level_range: !ruby/range 1..35
+      cars_volume_range: !ruby/range 30..60
       lane: bottom
       speed: 20
       cars_number: 5
-      cars_delay_interval_range: !ruby/range 1..10
-      pumps_number_range: !ruby/range 2..2
-      pumps_speed_range: !ruby/range 1..2
+      cars_delay_interval_range: !ruby/range 3..10
+      pumps_number_range: !ruby/range 2..3
+      pumps_speed_range: !ruby/range 1..5
       station_fuel_reserve: 200
-      station_closing_tick: 500
+      station_closing_tick: 200
 
   beta:
     simulations:

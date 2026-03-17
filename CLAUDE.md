@@ -11,12 +11,8 @@ bundle exec ruby tasks/runner.rb --scenario alpha       # Run named scenario
 bundle exec ruby tasks/runner.rb --aa                   # Run with ASCII art visualization
 bundle exec ruby tasks/runner.rb --silent               # Suppress log output
 bundle exec m test           # Run all tests
+bundle exec m test/path/to/test_file.rb                 # Run a single test file
 rubocop                      # Lint
-```
-
-Run a single test file:
-```bash
-bundle exec m test/path/to/test_file.rb
 ```
 
 ## Architecture
@@ -25,7 +21,7 @@ Petrolex is a petrol station simulator built on cooperative concurrency (`async`
 
 ### Simulation Flow
 
-**Entry point**: `tasks/runner.rb` — parses CLI options, loads scenario config from `config/simulations.yml`, and runs simulations via `Petrolex::Runner`.
+**Entry point**: `tasks/runner.rb` — parses CLI options, delegates to `ScenarioLoader` to build simulations from `config/simulations.yml`, then runs them via `Petrolex::Runner`.
 
 Each simulation (`app/simulation.rb`) spawns concurrent async tasks synchronized by a global timer (`app/timer.rb`):
 1. **Station task** — opens/closes the station at configured ticks
@@ -42,9 +38,12 @@ Each simulation (`app/simulation.rb`) spawns concurrent async tasks synchronized
 | `app/pump.rb` | Per-pump fueling logic |
 | `app/queue.rb` | Car queue using `Async::Condition` for producer-consumer signaling |
 | `app/car.rb` | Car entity (plate, fuel level, desired volume) |
-| `app/report.rb` | Tracks car outcomes (waiting, served, full, partial, none); computes metrics |
+| `app/report.rb` | Report container; `.for(station_name:)` returns a `StationSheet` |
+| `app/station_sheet.rb` | Per-station metrics: counts, averages, financials |
+| `app/scenario_loader.rb` | Loads `config/simulations.yml` and builds `Simulation` objects |
 | `app/report_saver.rb` | Serializes stats to `frontend/*.json` |
 | `app/ascii_art.rb` | Renders up to 2 simulations side-by-side in the terminal |
+| `app/ascii_board.rb` | `BOARD` template constant used by `AsciiArt` |
 | `app/logger.rb` | Colored logging; respects `--silent` |
 
 ### Configuration
@@ -68,9 +67,3 @@ All async tasks share a global `Timer` instance that controls tick progression. 
 - **`Async::Task.current.async`** — in `Timer#start` to spawn the tick loop as a child task
 
 Multiple simulations run concurrently via the outer `Async` block in `Runner`.
-
-## Known Issues (from README)
-
-- Tests are out of date
-- Report data may have inaccuracies and is unstructured
-- Runner code needs refactoring (acknowledged as hard to read)
