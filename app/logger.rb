@@ -11,15 +11,12 @@ module Petrolex
       @timer = timer
       @silent = silent
       @color = color
-      @lock = Mutex.new
     end
 
     def info(message)
       return if silent
 
-      lock.synchronize do
-        puts colorize("#{current_tick}: #{message}")
-      end
+      puts colorize("#{current_tick}: #{message}")
     end
 
     def print(message)
@@ -30,7 +27,7 @@ module Petrolex
 
     private
 
-    attr_reader :lock, :silent, :timer, :color
+    attr_reader :silent, :timer, :color
 
     def colorize(message)
       "\e[#{COLORS[color.to_sym]}m#{message}\e[0m"

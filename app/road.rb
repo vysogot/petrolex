@@ -49,12 +49,10 @@ module Petrolex
     end
 
     def refresh_roadies_in_queue
-      queue.lock.synchronize do
-        roadies.each do |r|
-          next if r.moving?
+      roadies.each do |r|
+        next if r.moving?
 
-          update_position_in_queue(r)
-        end
+        update_position_in_queue(r)
       end
     end
 

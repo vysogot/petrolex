@@ -169,7 +169,7 @@ scenarios:
       pumps_number_range: !ruby/range 2..2
       pumps_speed_range: !ruby/range 1..2
       station_fuel_reserve: 200
-      station_closing_tick: 1000
+      station_closing_tick: 500
 
   beta:
     simulations:

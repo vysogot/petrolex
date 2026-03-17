@@ -10,8 +10,6 @@ module Petrolex
     attr_accessor :is_open
 
     def initialize(simulation:, name:, reserve:, pumps:, fuel_price:, fuel_cost:, pump_base_cost:)
-      @reserve_lock = Mutex.new
-
       @timer = simulation.timer
       @logger = simulation.logger
       @report = simulation.report
@@ -51,16 +49,14 @@ module Petrolex
     end
 
     def take_fuel(units)
-      reserve_lock.synchronize do
-        after = reserve - units
-        raise NoMoreFuel if after.negative?
+      after = reserve - units
+      raise NoMoreFuel if after.negative?
 
-        self.reserve = after
-      end
+      self.reserve = after
     end
 
     def reserve_reading
-      reserve_lock.synchronize { reserve }
+      reserve
     end
 
     def avg_pumps_speed
@@ -88,7 +84,6 @@ module Petrolex
       report.for(station_name: name).update_reserve(count: reserve)
     end
 
-    attr_reader :reserve_lock
     attr_writer :reserve
   end
 end

@@ -7,7 +7,6 @@ module Petrolex
 
     def initialize(name:)
       @name = name
-      @lock = Mutex.new
       @document = {}
     end
 
@@ -37,17 +36,13 @@ module Petrolex
     end
 
     def add_record(record:)
-      lock.synchronize do
-        status = record.delete(:status)
-        sheet[status] << record
-      end
+      status = record.delete(:status)
+      sheet[status] << record
     end
 
     def remove_record(record:)
-      lock.synchronize do
-        status = record.delete(:status)
-        sheet[status].delete_if { |entry| entry[:car] == record[:car] }
-      end
+      status = record.delete(:status)
+      sheet[status].delete_if { |entry| entry[:car] == record[:car] }
     end
 
     def full = sheet[:full]
@@ -124,8 +119,5 @@ module Petrolex
       (total_income - total_cost).round(2)
     end
 
-    private
-
-    attr_reader :lock
   end
 end

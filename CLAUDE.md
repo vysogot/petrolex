@@ -21,18 +21,18 @@ bundle exec m test/path/to/test_file.rb
 
 ## Architecture
 
-Petrolex is a multi-threaded petrol station simulator. Its goal is to find optimal gas station configurations by minimizing average customer wait time across different pump/queue setups.
+Petrolex is a petrol station simulator built on cooperative concurrency (`async` gem). Its goal is to find optimal gas station configurations by minimizing average customer wait time across different pump/queue setups.
 
 ### Simulation Flow
 
 **Entry point**: `tasks/runner.rb` — parses CLI options, loads scenario config from `config/simulations.yml`, and runs simulations via `Petrolex::Runner`.
 
-Each simulation (`app/simulation.rb`) spawns concurrent threads synchronized by a global timer (`app/timer.rb`):
-1. **Station thread** — opens/closes the station at configured ticks
-2. **Queue consumer thread** — spawns a sub-thread per pump; pulls cars from queue and fuels them
-3. **Car spawner thread** — generates cars at random intervals matching scenario config
-4. **Road thread** (optional, `--aa`) — drives ASCII animation
-5. **Report saver thread** — periodically serializes metrics to JSON for the frontend
+Each simulation (`app/simulation.rb`) spawns concurrent async tasks synchronized by a global timer (`app/timer.rb`):
+1. **Station task** — opens/closes the station at configured ticks
+2. **Queue consumer task** — spawns a sub-task per pump via an inner `Async::Barrier`; pulls cars from queue and fuels them
+3. **Car spawner task** — generates cars at random intervals matching scenario config
+4. **Road task** (optional, `--aa`) — drives ASCII animation
+5. **Report saver task** — periodically serializes metrics to JSON for the frontend
 
 ### Key Modules
 
@@ -40,12 +40,12 @@ Each simulation (`app/simulation.rb`) spawns concurrent threads synchronized by 
 |------|------|
 | `app/station.rb` | Fuel reserve, pump management, cost tracking |
 | `app/pump.rb` | Per-pump fueling logic |
-| `app/queue.rb` | Thread-safe car queue using mutex + condition variables |
+| `app/queue.rb` | Car queue using `Async::Condition` for producer-consumer signaling |
 | `app/car.rb` | Car entity (plate, fuel level, desired volume) |
 | `app/report.rb` | Tracks car outcomes (waiting, served, full, partial, none); computes metrics |
 | `app/report_saver.rb` | Serializes stats to `frontend/*.json` |
 | `app/ascii_art.rb` | Renders up to 2 simulations side-by-side in the terminal |
-| `app/logger.rb` | Thread-safe colored logging; respects `--silent` |
+| `app/logger.rb` | Colored logging; respects `--silent` |
 
 ### Configuration
 
@@ -59,9 +59,15 @@ Scenarios are defined in `config/simulations.yml` using YAML anchors. Each simul
 
 The `.json` files are gitignored and regenerated each run.
 
-### Thread Synchronization
+### Concurrency Model
 
-All threads share a global `Timer` instance that controls tick progression. The queue uses a `Mutex` + `ConditionVariable` pair. Multiple simulations can run concurrently via the `async` gem.
+All async tasks share a global `Timer` instance that controls tick progression. The `async` gem's cooperative fiber scheduler is used throughout — no OS threads or mutexes. Key primitives:
+
+- **`Async::Barrier`** — in `Simulation#run` to wait for all tasks; in `Queue#consume` to wait for all pump sub-tasks
+- **`Async::Condition`** — in `Queue` for producer-consumer signaling between the car spawner and pump tasks
+- **`Async::Task.current.async`** — in `Timer#start` to spawn the tick loop as a child task
+
+Multiple simulations run concurrently via the outer `Async` block in `Runner`.
 
 ## Known Issues (from README)
 

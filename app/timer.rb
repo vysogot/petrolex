@@ -13,7 +13,7 @@ module Petrolex
     end
 
     def start
-      self.timer_thread = Thread.new do
+      self.timer_task = Async::Task.current.async do
         loop do
           wait
           tick
@@ -22,7 +22,7 @@ module Petrolex
     end
 
     def stop
-      timer_thread.terminate
+      timer_task&.stop
     end
 
     def tick_duration
@@ -47,7 +47,7 @@ module Petrolex
 
     private
 
-    attr_accessor :timer_thread, :tick_step
+    attr_accessor :timer_task, :tick_step
     attr_writer :current_tick
 
     def tick

@@ -24,13 +24,17 @@ module Petrolex
       start_time = clock_monotonic
       logger.print intro
       timer.start
-      threads.each(&:join)
+
+      barrier = Async::Barrier.new
+      spawn_tasks(barrier:)
+      barrier.wait
+
       timer.stop
       logger.print outro
       finish_time = clock_monotonic
 
       logger.print "Simulation took #{(finish_time - start_time).round(6)} seconds"
-      threads.each(&:kill)
+      barrier.stop
       self.finished = true
     end
 
@@ -89,38 +93,39 @@ module Petrolex
 
     private
 
-    def threads
+    def spawn_tasks(barrier:)
       [
-        station_thread,
-        queue_thread,
-        car_spawner_thread,
-        road_thread,
-        report_saver_thread
+        station_task(barrier:),
+        queue_task(barrier:),
+        car_spawner_task(barrier:),
+        road_task(barrier:),
+        report_saver_task(barrier:)
       ].compact
     end
 
-    def station_thread
-      Thread.new do
+    def station_task(barrier:)
+      barrier.async do
         station.open
         timer.pause_until(station_closing_tick)
         station.close
+        queue.signal_close
 
         timer.pause_for(1) until station.done?
       end
     end
 
-    def queue_thread
-      Thread.new { queue.consume }
+    def queue_task(barrier:)
+      barrier.async { queue.consume }
     end
 
     def road
       @road ||= Road.new(queue:, lane:)
     end
 
-    def road_thread
+    def road_task(barrier:)
       return unless ascii_art?
 
-      Thread.new do
+      barrier.async do
         loop do
           break if station.done?
 
@@ -130,16 +135,16 @@ module Petrolex
       end
     end
 
-    def car_spawner_thread
-      Thread.new do
+    def car_spawner_task(barrier:)
+      barrier.async do
         random_interval_enumerator.each do |car|
           ascii_art? ? road.push(car) : queue.push(car)
         end
       end
     end
 
-    def report_saver_thread
-      Thread.new do
+    def report_saver_task(barrier:)
+      barrier.async do
         report_saver = ReportSaver.new
         graph = Graph.new(report:)
 

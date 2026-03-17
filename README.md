@@ -1,10 +1,10 @@
 ### Petrol Station Simulator
 
-Each car, station with pump, and queue consumer work in their own threads.
+Each car, station with pump, and queue consumer run as async tasks (via the `async` gem).
 There is a timer that syncs them.
 
 The purpose of simulation is to find an optimal station/pump/queueing setup.
-The metric is an avarage waiting time of a car.
+The metric is an average waiting time of a car.
 
 Future ideas: more stations, more pumps, transactions, visualising, online game etc.
 

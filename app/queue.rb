@@ -3,37 +3,42 @@
 module Petrolex
   # Manages cars in a station
   class Queue
-    attr_reader :station, :lock, :waiting, :cond_var, :report
+    attr_reader :station, :condition, :waiting, :report
 
     def initialize(station:, report:)
       @station = station
       @report = report
-      @lock = Mutex.new
-      @cond_var = ConditionVariable.new
+      @condition = Async::Condition.new
       @waiting = []
     end
 
     def push(car)
       return unless station.open?
 
-      lock.synchronize do
-        add_car_to_queue(car)
-        logger.info("#{car} is #{waiting.size} in queue")
-        cond_var.signal
-      end
+      add_car_to_queue(car)
+      logger.info("#{car} is #{waiting.size} in queue")
+      condition.signal
+    end
+
+    def signal_close
+      station.mounted_pumps.size.times { condition.signal }
     end
 
     def consume
-      station.mounted_pumps.map do |pump|
-        Thread.new do
+      barrier = Async::Barrier.new
+      station.mounted_pumps.each do |pump|
+        barrier.async do
           loop do
-            break unless station.open?
-
             car, waiting_time = fetch_next_car_from_queue
+            break if car.nil?
+
             process_fueling(pump, car, waiting_time)
           end
         end
       end
+      barrier.wait
+    ensure
+      barrier.stop
     end
 
     private
@@ -48,16 +53,18 @@ module Petrolex
     end
 
     def fetch_next_car_from_queue
-      lock.synchronize do
-        cond_var.wait(lock) while waiting.empty?
+      while waiting.empty?
+        return nil unless station.open?
 
-        car, waiting_since = waiting.shift
-        record = { status: :waiting, car: }
-        report.for(station_name: station.name).remove_record(record:)
-        waiting_time = timer.current_tick - waiting_since
-
-        [car, waiting_time]
+        condition.wait
       end
+
+      car, waiting_since = waiting.shift
+      record = { status: :waiting, car: }
+      report.for(station_name: station.name).remove_record(record:)
+      waiting_time = timer.current_tick - waiting_since
+
+      [car, waiting_time]
     end
 
     def process_fueling(pump, car, waiting_time)
