@@ -10,12 +10,21 @@ Future ideas: more stations, more pumps, transactions, visualising, online game 
 
 Have fun!
 
-### Install
+### Install & run
 
-```
+```bash
 bundle install
-bundle exec m test # in progress
-bundle exec ruby tasks/runner.rb
+bundle exec ruby tasks/runner.rb                   # default scenario (alpha)
+bundle exec ruby tasks/runner.rb --scenario alpha  # named scenario
+bundle exec ruby tasks/runner.rb --silent          # suppress log output
+bundle exec ruby tasks/runner.rb --aa              # ASCII art visualisation
+```
+
+### Tests
+
+```bash
+bundle exec m test                         # all tests
+bundle exec m test/report_test.rb          # single file
 ```
 
 ### Sample outputs

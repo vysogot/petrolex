@@ -1,30 +1,33 @@
 # frozen_string_literal: true
 
-# require 'simplecov'
-# SimpleCov.start
-
 require_relative '../app/petrolex'
 require 'minitest/autorun'
-require 'pry'
-require 'pry-nav'
 
-module QuietLogger
-  def run
-    Petrolex::Logger.stub(:info, nil) { super }
+module Petrolex
+  module TestHelpers
+    FakeTimer = Struct.new(:current_tick)
+
+    def stub_timer(tick: 0)
+      FakeTimer.new(tick)
+    end
+
+    def stub_simulation(name: 'TestStation')
+      timer = stub_timer
+      logger = Logger.new(timer:, silent: true)
+      report = Report.new(name:)
+
+      Struct.new(:timer, :logger, :report).new(timer, logger, report)
+    end
   end
 end
 
 module SerialFaker
   def catch_output(&block)
-    default_serial_output = $stdout
-
-    fake_serial_output = StringIO.new
-    $stdout = fake_serial_output
-
+    default = $stdout
+    $stdout = StringIO.new
     block.call
-
-    fake_serial_output.string
+    $stdout.string
   ensure
-    $stdout = default_serial_output
+    $stdout = default
   end
 end

@@ -10,7 +10,7 @@ bundle exec ruby tasks/runner.rb                        # Run default simulation
 bundle exec ruby tasks/runner.rb --scenario alpha       # Run named scenario
 bundle exec ruby tasks/runner.rb --aa                   # Run with ASCII art visualization
 bundle exec ruby tasks/runner.rb --silent               # Suppress log output
-bundle exec m test           # Run tests
+bundle exec m test           # Run all tests
 rubocop                      # Lint
 ```
 

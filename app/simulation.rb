@@ -52,28 +52,26 @@ module Petrolex
     end
 
     def outro
+      stats = station_sheet
+
       <<~REPORT
         \nResults:
-        Cars fully fueled: #{report.for(station_name: station.name).full_count}
-        Cars partialy fueled: #{report.for(station_name: station.name).partial_count}
-        Cars not fueled due to lack of fuel: #{report.for(station_name: station.name).none_count}
-        Cars left in queue: #{report.for(station_name: station.name).waiting_count}\n
-        Fuel left in station: #{report.for(station_name: station.name).reserve} litres
-        Fuel pumped in cars: #{report.for(station_name: station.name).fuel_given} litres\n
-        Avg waiting time: #{report.for(station_name: station.name).avg_waiting_time} seconds
-        Avg fueling time: #{report.for(station_name: station.name).avg_fueling_time} seconds
-        Avg fueling speed: #{report.for(station_name: station.name).avg_fueling_speed} litres per second\n
+        Cars fully fueled: #{stats.full_count}
+        Cars partialy fueled: #{stats.partial_count}
+        Cars not fueled due to lack of fuel: #{stats.none_count}
+        Cars left in queue: #{stats.waiting_count}\n
+        Fuel left in station: #{stats.reserve} litres
+        Fuel pumped in cars: #{stats.fuel_given} litres\n
+        Avg waiting time: #{stats.avg_waiting_time} seconds
+        Avg fueling time: #{stats.avg_fueling_time} seconds
+        Avg fueling speed: #{stats.avg_fueling_speed} litres per second\n
         #{name} has ended.
       REPORT
     end
 
-    def finished?
-      finished
-    end
+    def finished? = finished
 
-    def roadies
-      road.roadies
-    end
+    def roadies = road.roadies
 
     def report
       @report ||= Report.new(name:)
@@ -92,6 +90,10 @@ module Petrolex
     end
 
     private
+
+    def station_sheet
+      report.for(station_name: station.name)
+    end
 
     def spawn_tasks(barrier:)
       [
@@ -137,7 +139,7 @@ module Petrolex
 
     def car_spawner_task(barrier:)
       barrier.async do
-        random_interval_enumerator.each do |car|
+        cars_enumerator.each do |car|
           ascii_art? ? road.push(car) : queue.push(car)
         end
       end
@@ -149,10 +151,7 @@ module Petrolex
         graph = Graph.new(report:)
 
         loop do
-          stats = graph.columns
-          elements = graph.elements
-
-          report_saver.call(stats:, elements:)
+          report_saver.call(stats: graph.columns, elements: graph.elements)
           break if station.done?
 
           sleep(1)
@@ -171,35 +170,28 @@ module Petrolex
     end
 
     def build_car
-      plate = Plater.instance.request_plate
-      volume = rand(cars_volume_range)
-      level = rand(cars_level_range)
-
-      Car.new(plate:, volume:, level:)
+      Car.new(
+        plate: Plater.instance.request_plate,
+        volume: rand(cars_volume_range),
+        level: rand(cars_level_range)
+      )
     end
 
-    def random_interval_enumerator
+    def cars_enumerator
       Enumerator.new do |enum|
         cars_number.times do
           break if station.done?
 
-          delay = SecureRandom.random_number(cars_delay_interval_range)
-          timer.pause_for(delay)
+          timer.pause_for(SecureRandom.random_number(cars_delay_interval_range))
           enum.yield(build_car)
         end
       end
     end
 
-    def pumps_print
-      pumps.map(&:speed).sort.join(', ')
-    end
+    def pumps_print = pumps.map(&:speed).sort.join(', ')
 
-    def ascii_art?
-      ascii_art
-    end
+    def ascii_art? = ascii_art
 
-    def clock_monotonic
-      Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    end
+    def clock_monotonic = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   end
 end
