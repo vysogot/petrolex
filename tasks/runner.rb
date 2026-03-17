@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Warning[:experimental] = false
+
 require_relative '../app/petrolex'
 require 'optparse'
 require 'yaml'

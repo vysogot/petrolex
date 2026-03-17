@@ -2,8 +2,9 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.3'
+ruby '~> 4.0'
 
+gem 'async'
 gem 'pry'
 gem 'pry-nav'
 gem 'rubocop', require: false

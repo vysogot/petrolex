@@ -5,7 +5,7 @@ module Petrolex
   class Logger
     JUSTIFY_UP_TO = 6
     FILL_UP_CHAR = '0'
-    COLORS = { red: 31, green: 32, yellow: 33, none: 0 }
+    COLORS = { red: 31, green: 32, yellow: 33, none: 0 }.freeze
 
     def initialize(timer:, silent:, color: :none)
       @timer = timer

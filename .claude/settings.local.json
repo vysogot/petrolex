@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/jgodawa/Development/playground/petrolex -maxdepth 2 -type f -name README* -o -name Makefile -o -name Rakefile -o -name package.json -o -name Gemfile -o -name CLAUDE.md -o -name .cursorrules -o -name .copilot*)",
+      "Bash(gem list:*)"
+    ]
+  }
+}
